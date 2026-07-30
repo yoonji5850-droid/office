@@ -555,7 +555,7 @@ function CeoConsole({ engine, snap }: { engine: Company; snap: Snapshot }) {
           <input
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
-            placeholder="예: 캐러셀팀 지금 뭐해? / 왜 늦어져?"
+            placeholder="예: 디자인 제작팀 지금 뭐해? / 왜 늦어져?"
             aria-label="대표 지시 입력"
           />
           <button type="submit">지시</button>
@@ -974,13 +974,13 @@ function DashboardView({
             </div>
             <div className="result-row">
               <b>이번 주 콘텐츠 캘린더 정리</b>
-              <span>기획 1팀</span>
+              <span>콘텐츠 일정팀</span>
               <span className="status-pill done">최종 완료</span>
               <span>—</span>
             </div>
             <div className="result-row">
-              <b>브랜드 템플릿 세팅</b>
-              <span>이미지 제작팀</span>
+              <b>아티스트별 디자인 템플릿 세팅</b>
+              <span>디자인 제작팀</span>
               <span className="status-pill done">최종 완료</span>
               <span>—</span>
             </div>

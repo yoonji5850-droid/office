@@ -128,40 +128,40 @@ export type Snapshot = {
 const PHASES = [
   "출근 대기",
   "07:00 전사 출근",
-  "시장조사",
-  "브랜드 분석",
-  "아이디어 10개",
-  "브랜드 QA",
-  "TOP 3 선정",
+  "데일리 이슈 수집",
+  "아티스트 분석",
+  "숏폼 아이디어 기획",
+  "품질 검수",
+  "TOP 1 선정",
   "대표 승인 대기",
-  "대본 작성",
-  "릴스·캐러셀 제작",
-  "Notion 저장",
-  "김비서 브리핑",
+  "콘텐츠 초안 작성",
+  "디자인 제작",
+  "저장·성과 기록",
+  "콘텐츠 비서실 브리핑",
   "업무 종료",
 ];
 
-const BLOCKED_DEPTS = new Set(["brand", "partner", "finance"]);
+const BLOCKED_DEPTS = new Set(["reels", "partner", "finance"]);
 
 /** 연동 대기 부서가 멈춰 있는 진짜 이유 */
 const BLOCK_REASON: Record<string, string> = {
-  brand: "Instagram 계정이 아직 연동 전이라 지표를 읽을 수 없어요. 없는 숫자를 만들지는 않습니다. 연동만 되면 바로 돌려요.",
-  partner: "Gmail 연동 전이라 협업 메일을 못 읽어요. 연결되면 답장 초안까지 준비해둡니다.",
-  finance: "재무 현황 파일이 아직 안 왔어요. 대표님이 파일만 주시면 그날 안에 정리합니다.",
+  reels: "연예 매체·SNS API가 아직 연동 전이라 실시간 이슈를 못 긁어와요. 없는 이슈를 지어내지는 않습니다. 연결되면 바로 모니터링 돌려요.",
+  partner: "캘린더 연동 전이라 일정 자동 동기화가 안 돼요. 대표님이 일정만 알려주시면 그날 안에 반영합니다.",
+  finance: "콘텐츠 자료 DB 연동 전이라 과거 자료를 자동으로 못 불러와요. 폴더만 공유해주시면 정리 시작합니다.",
 };
 
 /** 지시창에서 부서를 찾을 때 쓰는 키워드 — 구체적인 것부터 검사한다 */
 const DEPT_KEYWORDS: [string, string[]][] = [
   ["qa", ["qa", "큐아", "검수", "금칙어", "윤규아"]],
-  ["brand", ["인텔", "페르소나", "박보라", "브랜드 인텔"]],
-  ["strategy1", ["전략 1", "전략1", "기획", "아이디어", "최아름", "톱3", "top 3"]],
-  ["strategy2", ["전략 2", "전략2", "대본", "한도빈", "스크립트"]],
-  ["research", ["시장조사", "리서치", "조사팀", "뉴스", "김서연"]],
-  ["reels", ["릴스", "영상", "편집", "송리원"]],
-  ["carousel", ["캐러셀", "카드뉴스", "canva", "칸바", "이가림"]],
-  ["partner", ["파트너", "협찬", "광고 제안", "메일", "정파랑"]],
-  ["finance", ["재무", "정산", "입금", "돈", "오재민"]],
-  ["review", ["성과", "리뷰", "지표", "강성아"]],
+  ["brand", ["아티스트 분석", "팬덤", "인사이트", "박보라", "박아티"]],
+  ["strategy1", ["숏폼 기획", "숏폼기획", "기획팀", "아이디어", "최아름", "최숏폼"]],
+  ["strategy2", ["콘텐츠 초안", "대본", "한도빈", "한초안", "스크립트"]],
+  ["research", ["데일리 이슈", "이슈팀", "리서치", "뉴스", "김서연", "김이슈"]],
+  ["reels", ["연예계", "모니터링", "송리원", "송연예"]],
+  ["carousel", ["디자인 제작", "캐러셀", "카드뉴스", "canva", "칸바", "이가림", "이캐리"]],
+  ["partner", ["콘텐츠 일정", "캘린더", "정파랑", "정캘린"]],
+  ["finance", ["아카이브", "콘텐츠 자료", "오재민", "오아카"]],
+  ["review", ["성과", "학습점", "지표", "강성아"]],
   ["ops", ["자동화", "운영팀", "스케줄", "안도현"]],
   ["secretary", ["비서", "김세리", "비서실"]],
 ];
@@ -385,47 +385,50 @@ export class Company {
     yield 1.6;
     this.sitAtDesk(seri);
 
-    // ② 시장조사
+    // ② 데일리 이슈 수집
     this.phaseIndex = 2;
-    yield* this.runDept("research", "AI 뉴스·공식 출처 검증", 6.5, "오늘 검증된 후보 5개를 뽑았어요.");
+    yield* this.runDept("research", "온라인 신규 이슈·밈·숏폼 포맷 수집", 6.5, "오늘 신규 이슈 10개 중 활용 3개를 추렸어요.");
 
-    // ③ 브랜드 분석 — 연동 대기라 라운지로
+    // ③ 연예계 모니터링 — 연동 대기라 라운지로 / 아티스트 분석
     this.phaseIndex = 3;
-    const bora = this.agentById.get("brand-lead")!;
-    this.stand(bora);
-    this.say(bora, "Instagram 미연동이라 수치는 못 만들어요.", 3);
-    this.pushLog("🧬", "브랜드 인텔리전스팀: Instagram 미연동 → 분석값을 만들지 않고 기록만 남김", "lav");
-    this.goto(bora, rand(LOUNGE_ROOM.loiter), "휴식");
-    this.enqueue(bora, { k: "wait", dur: 4 }, { k: "fn", fn: () => this.say(bora, "연결되면 바로 돌립니다.", 2.4) });
-    this.sitAtDesk(bora);
-    this.pushLog("💌", "파트너십·재무팀: Gmail·재무 파일 연동 전이라 오늘은 대기합니다.", "lav");
+    const songLead = this.agentById.get("reels-lead")!;
+    this.stand(songLead);
+    this.say(songLead, "매체·SNS API 미연동이라 실시간 이슈는 못 긁어와요.", 3);
+    this.pushLog("🎤", "연예계 모니터링팀: 매체·SNS API 미연동 → 자동 수집 없이 대기", "lav");
+    this.goto(songLead, rand(LOUNGE_ROOM.loiter), "휴식");
+    this.enqueue(songLead, { k: "wait", dur: 4 }, { k: "fn", fn: () => this.say(songLead, "연결되면 바로 모니터링 시작할게요.", 2.4) });
+    this.sitAtDesk(songLead);
+    this.pushLog("🗓️", "콘텐츠 일정팀·콘텐츠 아카이브팀: 캘린더·자료 DB 연동 전이라 오늘은 대기합니다.", "lav");
 
-    // ④ 회의 1 — 시장조사 → 전략1 → QA 인수인계
+    yield* this.runDept("brand", "아티스트 정체성·매력·활동 일정 분석", 6.5, "아티스트 기준이랑 팬 반응 포인트까지 정리했어요.");
+
+    // ④ 회의 1 — 데일리 이슈 + 아티스트 분석 → 숏폼 기획 인수인계
     yield* this.meeting(
-      "오늘의 후보 인수인계",
-      ["research-lead", "strategy1-lead", "qa-lead"],
+      "오늘의 소재 인수인계",
+      ["research-lead", "brand-lead", "strategy1-lead", "qa-lead"],
       [
-        ["research-lead", "오늘 검증된 후보 5개예요. 전부 공식 출처 확인했어요."],
-        ["strategy1-lead", "좋아요. 콘텐츠 각도 10개로 풀게요."],
-        ["qa-lead", "DNA랑 최근 7일 중복부터 확인할게요."],
+        ["research-lead", "오늘 신규 이슈 후보 10개예요. 활용 3개만 추렸어요."],
+        ["brand-lead", "아티스트별 어울리는 톤이랑 피해야 할 소재도 같이 정리했어요."],
+        ["strategy1-lead", "좋아요. 아티스트별 숏폼 아이디어로 풀게요."],
+        ["qa-lead", "최근 콘텐츠랑 중복부터 확인할게요."],
       ],
     );
 
-    // ⑤ 아이디어 10개
+    // ⑤ 숏폼 아이디어 기획
     this.phaseIndex = 4;
-    yield* this.runDept("strategy1", "아이디어 10개 · 100점 채점", 7, "10개 만들었고 평균 78점이에요.");
+    yield* this.runDept("strategy1", "숏폼 아이디어 · 추천 점수 산출", 7, "화제성·적합도 높은 안으로 오늘의 추천을 좁혔어요.");
 
-    // ⑥ 브랜드 QA
+    // ⑥ 품질 검수
     this.phaseIndex = 5;
-    yield* this.runDept("qa", "금칙어·근거·중복 검사", 5.5, "3개 반려, 7개 통과예요.");
-    this.pushLog("🛡️", "QA 반려 3건: 근거 링크 없음 / 최근 7일 중복 / 오늘 행동 누락", "lav");
+    yield* this.runDept("qa", "출처·중복·아티스트 적합성·논란 가능성 검사", 5.5, "승인 7 · 조건부 승인 2 · 반려 1이에요.");
+    this.pushLog("🛡️", "품질 검수 반려 1건: 다른 아티스트 대표 콘텐츠와 구성이 지나치게 유사함", "lav");
 
-    // ⑦ TOP 3 선정
+    // ⑦ TOP 1 선정
     this.phaseIndex = 6;
     const areum = this.agentById.get("strategy1-lead")!;
     this.stand(areum);
-    this.say(areum, "TOP 3 정리했어요. 1위는 92점!", 3);
-    this.pushLog("💡", "콘텐츠 전략 1팀: TOP 3 확정 (1위 92점 · AI 회사 구축기)", "pink");
+    this.say(areum, "오늘의 추천안 정리했어요. 1위는 94점!", 3);
+    this.pushLog("💡", "숏폼 기획팀: TOP 1 확정 (94점 · 팬이 궁금해한 질문에 30초 안에 답하기)", "pink");
     yield 1.8;
     this.sitAtDesk(areum);
 
@@ -434,7 +437,7 @@ export class Company {
     this.deptStatus.strategy2 = "승인 대기";
     this.approvalPending = true;
     this.turbo = false; // 대표 결정 지점에서는 즉시 정상 속도로 돌아온다
-    this.meetingTitle = "TOP 3 대표 승인";
+    this.meetingTitle = "TOP 1 대표 승인";
     this.pushLog("📋", "대표 승인 대기: 오늘 결정할 안건 1개가 회의실에 올라왔어요.", "yellow");
 
     const approvers = ["strategy1-lead", "strategy2-lead", "secretary-lead"].map((id) => this.agentById.get(id)!);
@@ -457,7 +460,7 @@ export class Company {
     );
     yield this.allFree([...approvers, ceo]);
 
-    this.say(approvers[0], "TOP 1은 'AI 회사가 나 대신 출근한다면?' 92점이에요.", 3.4);
+    this.say(approvers[0], "TOP 1은 '팬이 궁금해한 질문에 30초 안에 답하기' 94점이에요.", 3.4);
     yield 2.4;
     this.say(approvers[2], "대표님, 오늘 결정하실 건 이거 하나예요.", 3.2);
     yield 2.2;
@@ -481,19 +484,17 @@ export class Company {
     yield this.allFree([...approvers, ceo]);
     this.unlock([...approvers, ceo]);
 
-    // ⑨ 대본 작성
+    // ⑨ 콘텐츠 초안 작성
     this.phaseIndex = 8;
-    yield* this.runDept("strategy2", "릴스·캐러셀 대본 집필", 7, "대본 2종 완성했어요. 결론까지 단정형으로 닫았어요.");
+    yield* this.runDept("strategy2", "숏폼 대본·자막·캡션 초안 작성", 7, "대중형·팬반응형·밈형 세 버전으로 나눠 작성했어요.");
 
-    // ⑩ 제작 인수인계 → 릴스·캐러셀 동시 작업
+    // ⑩ 제작 인수인계 → 디자인 제작
     this.phaseIndex = 9;
-    yield* this.deliver("strategy2-lead", "reels", "릴스 대본 넘길게요. 30초 컷이에요.", "받았어요! 무음컷부터 칠게요.");
-    yield* this.deliver("strategy2-lead", "carousel", "캐러셀 원고예요. 9장 분량!", "표지 3안부터 뽑을게요.");
+    yield* this.deliver("strategy2-lead", "carousel", "숏폼 대본 넘길게요. 30초 컷이에요.", "받았어요! 아티스트 톤앤매너부터 맞출게요.");
 
-    this.startDept("reels", "Drive 원본 접수·초안 편집", 8);
-    this.startDept("carousel", "Canva 페이지 복제·텍스트 교체", 8);
-    yield () => this.deptStatus.reels === "완료" && this.deptStatus.carousel === "완료";
-    this.pushLog("🎬", "릴스 초안 1건 · 캐러셀 9장 제작 완료 (원본 마스터는 그대로 보존)", "mint");
+    this.startDept("carousel", "카드뉴스·썸네일·SNS 시안 제작", 8);
+    yield () => this.deptStatus.carousel === "완료";
+    this.pushLog("🖼️", "카드뉴스·썸네일 시안 제작 완료 (승인된 공식 사진·가이드만 사용)", "mint");
 
     // ⑪ 저장 + 성과 기록
     this.phaseIndex = 10;
@@ -705,7 +706,7 @@ export class Company {
     this.pushChat(
       "staff",
       "김세리",
-      "이렇게 물어보시면 제일 빨라요 — “현황 보고” / “왜 늦어져?” / “시장조사팀 뭐해?” / “회의 소집” / “집중 모드” / “지금 브리핑”.",
+      "이렇게 물어보시면 제일 빨라요 — “현황 보고” / “왜 늦어져?” / “데일리 이슈팀 뭐해?” / “회의 소집” / “집중 모드” / “지금 브리핑”.",
     );
   }
 
