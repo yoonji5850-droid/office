@@ -58,99 +58,99 @@ export const CEO_PROFILE = {
 export const DEPARTMENTS = [
   {
     id: "research",
-    name: "시장조사팀",
-    short: "trend.lab",
-    icon: "🔎",
-    task: "업계 뉴스·트렌드 수집",
-    report: "출처를 검증하고 오늘의 후보를 정리해요.",
+    name: "데일리 이슈팀",
+    short: "daily.issue",
+    icon: "🌐",
+    task: "뉴스·밈·SNS 트렌드·기념일·문화 이슈 수집",
+    report: "콘텐츠로 쓸 만한 소재만 골라서 넘겨요.",
   },
   {
     id: "brand",
-    name: "브랜드 분석팀",
-    short: "brand.room",
+    name: "아티스트 분석팀",
+    short: "artist.lab",
     icon: "🧬",
-    task: "채널 흐름·정체성 점검",
-    report: "지표 연동이 되면 수치까지 붙습니다.",
+    task: "아티스트 이미지·캐릭터·팬덤 취향·활동 일정 분석",
+    report: "콘텐츠 기준에 맞는지 아티스트 결로 확인해요.",
   },
   {
     id: "strategy1",
-    name: "기획 1팀",
-    short: "idea.studio",
+    name: "숏폼 기획팀",
+    short: "short.studio",
     icon: "💡",
-    task: "오늘의 아이디어 10개",
-    report: "점수 기준으로 TOP 3까지 좁혀요.",
+    task: "이슈·트렌드를 아티스트에 맞게 숏폼 아이디어로 변형",
+    report: "오늘 추천안 중 어울리는 걸로 좁혀요.",
   },
   {
     id: "qa",
     name: "품질 검수팀",
     short: "qa.check",
     icon: "🛡️",
-    task: "근거·중복·톤 검사",
-    report: "기준에서 벗어난 안은 되돌려보내요.",
+    task: "출처·사실관계·중복·톤·아티스트 적합성·논란 여부 검사",
+    report: "기준 미달은 바로 반려해요.",
   },
   {
     id: "strategy2",
-    name: "기획 2팀",
-    short: "script.team",
+    name: "콘텐츠 초안팀",
+    short: "draft.team",
     icon: "✍️",
-    task: "승인된 안 원고 작성",
-    report: "대표가 고른 아이디어만 글로 옮겨요.",
+    task: "승인안을 대본·장면·자막·캡션·카드문안 초안으로 확장",
+    report: "제작 가능한 형태까지 다듬어요.",
   },
   {
     id: "reels",
-    name: "영상 제작팀",
-    short: "video.edit",
-    icon: "🎬",
-    task: "영상 원본 접수·초안 편집",
-    report: "원본은 보존하고 편집본만 새로 만들어요.",
+    name: "팬덤 인사이트팀",
+    short: "fandom.insight",
+    icon: "👥",
+    task: "팬 커뮤니티·댓글 반응과 멤버별 매력·관계성 정리",
+    report: "팬들이 좋아하는 포인트를 콕 집어드려요.",
   },
   {
     id: "carousel",
-    name: "이미지 제작팀",
+    name: "디자인 제작팀",
     short: "design.studio",
     icon: "🖼️",
-    task: "카드·썸네일 디자인",
-    report: "필요한 장수만 만들고 CTA로 닫아요.",
+    task: "카드뉴스·썸네일·게시물 시안과 이미지 프롬프트 제작",
+    report: "필요한 장수만 만들어서 넘겨요.",
   },
   {
     id: "partner",
-    name: "제휴 커뮤니케이션팀",
-    short: "partner.mail",
-    icon: "💌",
-    task: "협업 문의 검토·답장 초안",
-    report: "초안까지만 씁니다. 발송은 대표가 해요.",
+    name: "콘텐츠 일정팀",
+    short: "content.calendar",
+    icon: "🗓️",
+    task: "컴백·공연·방송·기념일 기준 제작 캘린더 구성",
+    report: "이번 주 우선순위 일정만 콕 집어드려요.",
   },
   {
     id: "finance",
-    name: "재무·정산팀",
-    short: "finance.xls",
-    icon: "🧾",
-    task: "수익·입금 현황 정리",
-    report: "현황 파일이 오면 바로 정리합니다.",
+    name: "콘텐츠 아카이브팀",
+    short: "content.archive",
+    icon: "🗂️",
+    task: "기존 콘텐츠·기획안·이미지·영상·성과·아이디어 정리",
+    report: "중복 안 나게 재활용 자료를 챙겨둬요.",
   },
   {
     id: "review",
-    name: "성과리뷰팀",
-    short: "review.data",
+    name: "성과 학습팀",
+    short: "growth.data",
     icon: "📈",
-    task: "성과·학습점 기록",
-    report: "잘된 이유를 패턴으로 남겨요.",
+    task: "조회수·완주율·저장·공유·댓글 반응 분석",
+    report: "잘된 요소는 다음 기획에 바로 반영해요.",
   },
   {
     id: "ops",
     name: "자동화 운영팀",
     short: "automation.ops",
     icon: "⚙️",
-    task: "연동·실패·재시도 관리",
+    task: "정해진 시간에 팀별 작업 실행, 실패·누락·중복 관리",
     report: "실패하면 재시도하고 로그를 남겨요.",
   },
   {
     id: "secretary",
-    name: "비서실",
+    name: "콘텐츠 비서실",
     short: "secretary.hq",
     icon: "📋",
-    task: "전사 한줄보고·최종 브리핑",
-    report: "모든 팀 상태를 모아 결정할 것만 남겨드려요.",
+    task: "전 팀 결과 취합, 확인·결정 필요한 것만 브리핑",
+    report: "오늘 꼭 봐야 할 것만 모아드려요.",
   },
 ] as const;
 
@@ -171,8 +171,8 @@ export type StaffEntry = {
 };
 
 export const STAFF_LIST: StaffEntry[] = [
-  // ① 시장조사팀
-  { dept: "research", rank: "lead", name: "김서연", role: "시장조사 팀장", callsign: "김리서",
+  // ① 데일리 이슈팀
+  { dept: "research", rank: "lead", name: "김서연", role: "데일리이슈 팀장", callsign: "김이슈",
     colors: ["#6b3d34", "#fff3b0", "#ff8fc0"],
     thoughts: ["이 기사, 공식 출처가 있나 확인해야 해.", "발표일이 7일 넘었으면 후보에서 빼자.", "원문부터 다시 본다."] },
   { dept: "research", rank: "member", name: "오태윤", role: "뉴스 리서처",
@@ -182,8 +182,8 @@ export const STAFF_LIST: StaffEntry[] = [
     colors: ["#8a4a3c", "#b8f0dd", "#ff8fc0"],
     thoughts: ["이번 주 사람들이 뭘 저장했지?", "재포장 기사는 원문으로 안 쳐요."] },
 
-  // ② 브랜드 분석팀
-  { dept: "brand", rank: "lead", name: "박보라", role: "브랜드 분석 팀장", callsign: "박브리",
+  // ② 아티스트 분석팀
+  { dept: "brand", rank: "lead", name: "박보라", role: "아티스트 분석 팀장", callsign: "박아티",
     colors: ["#372b4a", "#c9b8ff", "#c9b8ff"],
     thoughts: ["지표 연동 전엔 수치를 지어내지 않아요.", "우리 색깔에서 벗어난 각도인지 본다."] },
   { dept: "brand", rank: "member", name: "신재원", role: "채널 지표 분석",
@@ -193,8 +193,8 @@ export const STAFF_LIST: StaffEntry[] = [
     colors: ["#5a3450", "#fff3b0", "#ff8fc0"],
     thoughts: ["우리가 안 쓰기로 한 프레임이에요.", "타겟이 흐려지면 다시 잡아요."] },
 
-  // ③ 기획 1팀
-  { dept: "strategy1", rank: "lead", name: "최아름", role: "기획 1팀장", callsign: "최아이",
+  // ③ 숏폼 기획팀
+  { dept: "strategy1", rank: "lead", name: "최아름", role: "숏폼기획 팀장", callsign: "최숏폼",
     colors: ["#c26e4b", "#ff8fc0", "#fff3b0"],
     thoughts: ["오늘도 정확히 10개, 예외 없어요.", "기준 점수부터 채우고 시작.", "각도가 겹치면 프레임을 바꾼다."] },
   { dept: "strategy1", rank: "member", name: "정유진", role: "아이디어 발굴",
@@ -215,8 +215,8 @@ export const STAFF_LIST: StaffEntry[] = [
     colors: ["#6c3a55", "#c9b8ff", "#fff3b0"],
     thoughts: ["과장된 표현은 바로 빼요.", "우리 톤 유지하는지 본다."] },
 
-  // ⑤ 기획 2팀
-  { dept: "strategy2", rank: "lead", name: "한도빈", role: "원고 팀장", callsign: "한대본",
+  // ⑤ 콘텐츠 초안팀
+  { dept: "strategy2", rank: "lead", name: "한도빈", role: "콘텐츠초안 팀장", callsign: "한초안",
     colors: ["#8b534a", "#fff3b0", "#ff8fc0"],
     thoughts: ["승인된 안만 원고로 씁니다.", "결론은 하나로 닫아야 해요."] },
   { dept: "strategy2", rank: "member", name: "조민서", role: "영상 대본",
@@ -226,19 +226,19 @@ export const STAFF_LIST: StaffEntry[] = [
     colors: ["#5d3a2c", "#b8f0dd", "#c9b8ff"],
     thoughts: ["3장에서 원인을 다시 정의합니다.", "마지막 장은 댓글 유도로."] },
 
-  // ⑥ 영상 제작팀
-  { dept: "reels", rank: "lead", name: "송리원", role: "영상 제작 팀장", callsign: "송릴스",
+  // ⑥ 팬덤 인사이트팀
+  { dept: "reels", rank: "lead", name: "송리원", role: "팬덤 인사이트 팀장", callsign: "송팬덤",
     colors: ["#2c2638", "#ff8fc0", "#ff8fc0"],
-    thoughts: ["원본은 절대 안 건드려요.", "무음 컷부터 치고 시작."] },
-  { dept: "reels", rank: "member", name: "권지호", role: "편집",
+    thoughts: ["오늘 팬들이 제일 많이 언급한 포인트부터 확인해요.", "멤버 케미가 화제면 그 조합을 기록해둡니다."] },
+  { dept: "reels", rank: "member", name: "권지호", role: "댓글·반응 분석",
     colors: ["#4a3a2a", "#fff3b0", "#b8f0dd"],
-    thoughts: ["컷 템포가 늘어지면 이탈이에요.", "도입부는 대표가 직접 넣어요."] },
-  { dept: "reels", rank: "member", name: "유세아", role: "자막·썸네일",
+    thoughts: ["좋아요보다 댓글 톤을 먼저 봐요.", "부정 반응도 이유는 남겨둡니다."] },
+  { dept: "reels", rank: "member", name: "유세아", role: "멤버 매력 포인트 정리",
     colors: ["#7a3f58", "#c9b8ff", "#ff8fc0"],
-    thoughts: ["썸네일 5종 뽑아둘게요.", "워터마크는 안 넣습니다."] },
+    thoughts: ["이 멤버는 이 표정이 제일 반응 좋아요.", "관계성 밈은 따로 모아둘게요."] },
 
-  // ⑦ 이미지 제작팀
-  { dept: "carousel", rank: "lead", name: "이가림", role: "이미지 제작 팀장", callsign: "이캐리",
+  // ⑦ 디자인 제작팀
+  { dept: "carousel", rank: "lead", name: "이가림", role: "디자인 제작 팀장", callsign: "이캐리",
     colors: ["#d88d68", "#c9b8ff", "#c9b8ff"],
     thoughts: ["원본 템플릿은 복제만, 수정 금지.", "필요한 장수만 뽑아요."] },
   { dept: "carousel", rank: "member", name: "남주하", role: "레이아웃",
@@ -248,24 +248,24 @@ export const STAFF_LIST: StaffEntry[] = [
     colors: ["#274a44", "#fff3b0", "#b8f0dd"],
     thoughts: ["마지막 장 CTA 빠지면 반려예요.", "복제본에만 손댑니다."] },
 
-  // ⑧ 제휴 커뮤니케이션팀
-  { dept: "partner", rank: "lead", name: "정파랑", role: "제휴 팀장", callsign: "정파트",
+  // ⑧ 콘텐츠 일정팀
+  { dept: "partner", rank: "lead", name: "정파랑", role: "콘텐츠 일정 팀장", callsign: "정캘린",
     colors: ["#563a32", "#b8f0dd", "#b8f0dd"],
-    thoughts: ["메일 연동 전이라 아직 못 읽어요.", "실제 발송은 대표 손으로."] },
-  { dept: "partner", rank: "member", name: "구예성", role: "협업 검토",
+    thoughts: ["이번 주 컴백·방송 일정부터 캘린더에 반영해요.", "겹치는 일정은 우선순위로 정리합니다."] },
+  { dept: "partner", rank: "member", name: "구예성", role: "제작 일정 조율",
     colors: ["#452d3f", "#c9b8ff", "#fff3b0"],
-    thoughts: ["결이 맞는 제안만 받습니다.", "답장 초안까지만 준비해둘게요."] },
+    thoughts: ["마감일 역산해서 착수일부터 잡아요.", "기념일 콘텐츠는 3일 전엔 확정해야 해요."] },
 
-  // ⑨ 재무·정산팀
-  { dept: "finance", rank: "lead", name: "오재민", role: "재무 팀장", callsign: "오재무",
+  // ⑨ 콘텐츠 아카이브팀
+  { dept: "finance", rank: "lead", name: "오재민", role: "콘텐츠 아카이브 팀장", callsign: "오아카",
     colors: ["#313b56", "#fff3b0", "#fff3b0"],
-    thoughts: ["현황 파일이 오면 바로 정리합니다.", "입금 대기 건부터 확인해요."] },
-  { dept: "finance", rank: "member", name: "심우진", role: "정산 관리",
+    thoughts: ["이 소재, 예전에 썼던 건지부터 확인해요.", "중복 안 나게 태그부터 정리합니다."] },
+  { dept: "finance", rank: "member", name: "심우진", role: "자료 정리·태깅",
     colors: ["#4b3b2c", "#b8f0dd", "#c9b8ff"],
-    thoughts: ["지연된 건은 따로 표시해둡니다.", "결제는 자동으로 안 해요."] },
+    thoughts: ["폴더 기준 없이 저장 안 해요.", "재활용 가능한 소재는 따로 표시해둡니다."] },
 
-  // ⑩ 성과리뷰팀
-  { dept: "review", rank: "lead", name: "강성아", role: "성과리뷰 팀장", callsign: "강성과",
+  // ⑩ 성과 학습팀
+  { dept: "review", rank: "lead", name: "강성아", role: "성과학습 팀장", callsign: "강성과",
     colors: ["#9c5c72", "#ff8fc0", "#ff8fc0"],
     thoughts: ["잘된 이유를 패턴으로 남겨야 해요.", "저장·댓글이 진짜 지표입니다."] },
   { dept: "review", rank: "member", name: "마지훈", role: "지표 수집",
@@ -283,8 +283,8 @@ export const STAFF_LIST: StaffEntry[] = [
     colors: ["#573049", "#fff3b0", "#ff8fc0"],
     thoughts: ["연결 안 된 서비스를 성공으로 안 씁니다.", "연동 대기 중이에요."] },
 
-  // ⑫ 비서실
-  { dept: "secretary", rank: "lead", name: "김세리", role: "비서실장", callsign: "김비서",
+  // ⑫ 콘텐츠 비서실
+  { dept: "secretary", rank: "lead", name: "김세리", role: "콘텐츠비서실장", callsign: "김비서",
     colors: ["#7a453c", "#c9b8ff", "#c9b8ff"],
     thoughts: ["대표가 결정할 것만 추립니다.", "중복 설명은 다 지워요."] },
   { dept: "secretary", rank: "member", name: "홍보람", role: "브리핑 정리",
@@ -297,9 +297,9 @@ export const STAFF_LIST: StaffEntry[] = [
  * 연동을 다 붙였거나, 그냥 전부 초록불로 보고 싶으면 빈 배열 []로 두세요.
  */
 export const PENDING_INTEGRATIONS: Record<string, string> = {
-  brand: "채널 지표 연동",
-  partner: "메일 연동",
-  finance: "재무 현황 파일",
+  brand: "아티스트 활동 지표 연동",
+  partner: "일정 캘린더 연동",
+  finance: "콘텐츠 자료 DB 연동",
 };
 
 /**
