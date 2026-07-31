@@ -69,7 +69,7 @@ export const DEPARTMENTS = [
     name: "아티스트 분석팀",
     short: "artist.lab",
     icon: "🧬",
-    task: "아티스트 정체성·매력·활동 일정 분석과 팬·대중 반응 파악",
+    task: "아티스트 정체성·매력·활동 일정 분석과 팬·대중 반응 파악 (인스타그램 @mumw_official·@mumw_actor 모니터링)",
     report: "아티스트 기준과 팬 반응 포인트를 함께 정리했어요.",
   },
   {
@@ -101,7 +101,7 @@ export const DEPARTMENTS = [
     name: "연예계 모니터링팀",
     short: "industry.watch",
     icon: "🎤",
-    task: "아이돌·가수·배우 이슈, 화제 콘텐츠, 평판 위험 모니터링",
+    task: "아이돌·가수·배우 이슈, 화제 콘텐츠, 평판 위험 모니터링 (유튜브 @MAKEUMINEWORKS 실시간 신규 영상 감지)",
     report: "오늘의 연예계 이슈 10개 중 참고할 콘텐츠 5개를 골랐어요.",
   },
   {
