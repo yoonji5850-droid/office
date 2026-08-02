@@ -3,8 +3,9 @@ import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } fr
 import handler from "vinext/server/app-router-entry";
 import { integrationStatus, publishReport, type DayReport, type PublishEnv } from "./report";
 import { getDailyIssues, getEntertainmentNews } from "./news";
+import { generateCardNews, type CardNewsEnv, type CardNewsRequest } from "./cardnews";
 
-interface Env extends PublishEnv {
+interface Env extends PublishEnv, CardNewsEnv {
   ASSETS: Fetcher;
   DB: D1Database;
   IMAGES: {
@@ -61,6 +62,18 @@ const worker = {
     if (url.pathname === "/api/news/daily-issues") {
       try {
         return Response.json(await getDailyIssues());
+      } catch (error) {
+        return Response.json({ error: error instanceof Error ? error.message : String(error) }, { status: 400 });
+      }
+    }
+
+    // 콘텐츠 초안팀·디자인 제작팀: 대표가 고른 이슈로 카드뉴스 문안 생성
+    if (url.pathname === "/api/cardnews") {
+      if (request.method !== "POST") return new Response("POST only", { status: 405 });
+      try {
+        const item = (await request.json()) as CardNewsRequest;
+        const result = await generateCardNews(item, env);
+        return Response.json(result);
       } catch (error) {
         return Response.json({ error: error instanceof Error ? error.message : String(error) }, { status: 400 });
       }

@@ -133,8 +133,8 @@ const PHASES = [
   "아티스트 분석",
   "숏폼 아이디어 기획",
   "품질 검수",
-  "TOP 1 선정",
-  "대표 승인 대기",
+  "숏폼 아이디어 정리",
+  "콘텐츠 초안 준비",
   "콘텐츠 초안 작성",
   "디자인 제작",
   "저장·성과 기록",
@@ -382,6 +382,7 @@ export class Company {
     yield 0.6;
 
     const seri = this.agentById.get("secretary-lead")!;
+    const ceo = this.agentById.get("ceo")!;
     this.stand(seri);
     this.say(seri, "대표님, 오늘 업무 시작합니다.", 2.6);
     yield 1.6;
@@ -419,71 +420,22 @@ export class Company {
     yield* this.runDept("qa", "출처·중복·아티스트 적합성·논란 가능성 검사", 5.5, "승인 7 · 조건부 승인 2 · 반려 1이에요.");
     this.pushLog("🛡️", "품질 검수 반려 1건: 다른 아티스트 대표 콘텐츠와 구성이 지나치게 유사함", "lav");
 
-    // ⑦ TOP 1 선정
+    // ⑦ 오늘의 아이디어 정리 — 실제 콘텐츠 소재는 대표가 뉴스 피드에서 직접 골라 카드뉴스로 제작한다
     this.phaseIndex = 6;
     const areum = this.agentById.get("strategy1-lead")!;
     this.stand(areum);
-    this.pendingIdea = {
-      title: "팬이 궁금해한 질문에 30초 안에 답하기",
-      score: 94,
-      reasons: ["팬 참여 유도가 확실한 소재", "촬영 난이도가 낮아 바로 제작 가능", "화제성 높은 이슈와 연결됨"],
-    };
-    this.say(areum, "오늘의 추천안 정리했어요. 1위는 94점!", 3);
-    this.pushLog("💡", "숏폼 기획팀: TOP 1 확정 (94점 · 팬이 궁금해한 질문에 30초 안에 답하기)", "pink");
+    this.say(areum, "오늘 아이디어 정리 끝났어요. 실제 소재는 대표님이 뉴스 피드에서 골라주세요!", 3.2);
+    this.pushLog(
+      "💡",
+      "숏폼 기획팀: 아이디어 정리 완료 — 데일리 이슈팀·연예계 모니터링팀 실시간 피드에서 대표가 이슈를 고르면 카드뉴스로 제작합니다.",
+      "pink",
+    );
     yield 1.8;
     this.sitAtDesk(areum);
 
-    // ⑧ 대표 승인 회의
+    // ⑧ 콘텐츠 초안 준비
     this.phaseIndex = 7;
-    this.deptStatus.strategy2 = "승인 대기";
-    this.approvalPending = true;
-    this.turbo = false; // 대표 결정 지점에서는 즉시 정상 속도로 돌아온다
-    this.meetingTitle = "TOP 1 대표 승인";
-    this.pushLog("📋", "대표 승인 대기: 오늘 결정할 안건 1개가 회의실에 올라왔어요.", "yellow");
-
-    const approvers = ["strategy1-lead", "strategy2-lead", "secretary-lead"].map((id) => this.agentById.get(id)!);
-    const ceo = this.agentById.get("ceo")!;
-    this.lock([...approvers, ceo]);
-    approvers.forEach((agent, i) => {
-      this.stand(agent);
-      const seat = this.bookSeat(agent, i);
-      this.goto(agent, seat, "회의 중");
-      this.enqueue(agent, { k: "face", dir: seat.y < 7 ? "down" : "up" }, { k: "anim", a: "sit" });
-    });
-    const ceoSeat = this.bookSeat(ceo, 3);
-    this.enqueue(
-      ceo,
-      { k: "anim", a: "idle" },
-      { k: "status", s: "회의 중" },
-      { k: "walk", to: ceoSeat },
-      { k: "face", dir: ceoSeat.y < 7 ? "down" : "up" },
-      { k: "anim", a: "sit" },
-    );
-    yield this.allFree([...approvers, ceo]);
-
-    this.say(approvers[0], `TOP 1은 '${this.pendingIdea?.title}' ${this.pendingIdea?.score}점이에요.`, 3.4);
-    yield 2.4;
-    this.say(approvers[2], "대표님, 오늘 결정하실 건 이거 하나예요.", 3.2);
-    yield 2.2;
-    this.say(ceo, "확인해볼게요.", 2.4);
-
-    // 대표가 승인 버튼을 누를 때까지 대기
-    yield () => this.approved;
-
-    this.approvalPending = false;
-    this.meetingTitle = null;
-    this.say(ceo, "승인! 이대로 갑시다.", 2.8);
-    this.pushLog("✅", "대표 승인 완료 — TOP 1 콘텐츠 제작을 시작합니다.", "mint");
-    yield 1.6;
-    for (const agent of approvers) {
-      this.releaseSeat(agent);
-      this.stand(agent);
-      this.sitAtDesk(agent);
-    }
-    this.releaseSeat(ceo);
-    this.enqueue(ceo, { k: "anim", a: "idle" }, { k: "walk", to: CEO_SEAT }, { k: "face", dir: "down" }, { k: "anim", a: "sit" }, { k: "status", s: "업무 중" });
-    yield this.allFree([...approvers, ceo]);
-    this.unlock([...approvers, ceo]);
+    yield 0.6;
 
     // ⑨ 콘텐츠 초안 작성
     this.phaseIndex = 8;

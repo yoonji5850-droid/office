@@ -17,3 +17,8 @@ NOTION_BRIEFING_DB=
 # ── Discord ────────────────────────────────────────────
 # 보고를 받을 채널 → 채널 편집 → 연동 → 웹후크 → 새 웹후크 → URL 복사
 DISCORD_WEBHOOK_URL=
+
+# ── Anthropic (콘텐츠 초안팀 — 카드뉴스 문안 자동 생성용) ──────
+# https://console.anthropic.com/settings/keys 에서 API 키 발급
+# (이 값이 없어도 뉴스 피드는 정상 작동하고, "카드뉴스로 만들기" 버튼만 실패해요)
+ANTHROPIC_API_KEY=

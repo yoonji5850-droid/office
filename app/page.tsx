@@ -19,6 +19,9 @@ type View = "live" | "dashboard";
 
 type NewsItem = { title: string; link: string; source: string; publishedAt: string };
 
+type CardNewsResult = { cover: string; cards: string[]; caption: string };
+type CardNewsState = { item: NewsItem | null; loading: boolean; error: string; result: CardNewsResult | null };
+
 const statusClass: Record<DeptStatus, string> = {
   "완료": "done",
   "진행 중": "working",
@@ -74,6 +77,7 @@ export default function Home() {
     error: "",
   });
   const [dailyIssues, setDailyIssues] = useState<{ items: NewsItem[]; error: string }>({ items: [], error: "" });
+  const [cardNews, setCardNews] = useState<CardNewsState>({ item: null, loading: false, error: "", result: null });
   const publishedRef = useRef(false);
 
   useEffect(() => {
@@ -202,10 +206,29 @@ export default function Home() {
     showToast("07:00 — AI 직원 32명이 출근합니다 ✨");
   };
 
-  const approve = () => {
-    engine.approve();
-    showToast("승인 완료! 제작팀이 바로 움직여요");
-  };
+  const makeCardNews = useCallback(
+    async (item: NewsItem) => {
+      setCardNews({ item, loading: true, error: "", result: null });
+      try {
+        const res = await fetch("/api/cardnews", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(item),
+        });
+        const data = (await res.json()) as { cover: string; cards: string[]; caption: string; error?: string };
+        if (!res.ok || data.error) throw new Error(data.error ?? "생성 실패");
+        setCardNews({ item, loading: false, error: "", result: data });
+        engine.pushLog("✍️", `콘텐츠 초안팀: "${item.title}" 이슈로 카드뉴스 문안을 작성했어요.`, "pink");
+        engine.pushLog("🖼️", "디자인 제작팀: 카드뉴스 시안 문구까지 정리 완료.", "mint");
+        showToast("카드뉴스 문안이 완성됐어요!");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setCardNews({ item, loading: false, error: message, result: null });
+        showToast("카드뉴스 생성 실패 — ANTHROPIC_API_KEY를 확인해주세요");
+      }
+    },
+    [engine, showToast],
+  );
 
   const teams = useMemo(
     () =>
@@ -229,6 +252,7 @@ export default function Home() {
   const selected = selectedId ? engine.agentById.get(selectedId) ?? null : null;
   const todo = snap.approvalPending ? 1 : 0;
   const onDuty = engine.agents.filter((a) => a.status !== "출근 전").length;
+  const dayReport = useMemo(() => buildReport(snap), [snap]);
 
   return (
     <main className="page-shell">
@@ -269,11 +293,11 @@ export default function Home() {
             selectedId={selectedId}
             onSelect={onSelect}
             onStart={start}
-            onApprove={approve}
             onDuty={onDuty}
             onPublish={() => void sendReport(false)}
             publishBusy={publishState.busy}
             publishResult={publishState.result}
+            cardNews={cardNews}
           />
         ) : (
           <DashboardView
@@ -283,10 +307,10 @@ export default function Home() {
             setFilter={setFilter}
             snap={snap}
             onStart={start}
-            onApprove={approve}
             onSelect={(id) => setSelectedId(id)}
             integrations={integrations}
             publishResult={publishState.result}
+            cardNews={cardNews}
           />
         )}
 
@@ -312,6 +336,14 @@ export default function Home() {
                           {item.title}
                         </a>
                         {item.source ? <span className="dash-note"> · {item.source}</span> : null}
+                        {" "}
+                        <button
+                          className="btn btn-small"
+                          disabled={cardNews.loading}
+                          onClick={() => void makeCardNews(item)}
+                        >
+                          📇 카드뉴스로 만들기
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -332,12 +364,56 @@ export default function Home() {
                           {item.title}
                         </a>
                         {item.source ? <span className="dash-note"> · {item.source}</span> : null}
+                        {" "}
+                        <button
+                          className="btn btn-small"
+                          disabled={cardNews.loading}
+                          onClick={() => void makeCardNews(item)}
+                        >
+                          📇 카드뉴스로 만들기
+                        </button>
                       </li>
                     ))}
                   </ul>
                 )}
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="win storage" style={{ marginTop: 20 }}>
+          <div className="win-bar">
+            <span>📋 all_teams_report</span>
+            <span className="window-controls">—　▢　✕</span>
+          </div>
+          <div className="win-body">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">전체 부서 · {dayReport.clock} 기준</p>
+                <h2>오늘의 아이디어·시안·이슈 보고서</h2>
+              </div>
+            </div>
+            {dayReport.highlights.length === 0 ? (
+              <p className="dash-note">아직 완료된 부서 결과물이 없어요. 업무를 시작해보세요.</p>
+            ) : (
+              <ul style={{ lineHeight: 1.8 }}>
+                {dayReport.highlights.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+            )}
+            {dayReport.risks.length > 0 ? (
+              <>
+                <p className="dash-note" style={{ marginTop: 10 }}>
+                  <b>⚠️ 연동 대기</b>
+                </p>
+                <ul style={{ lineHeight: 1.8 }}>
+                  {dayReport.risks.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
           </div>
         </section>
 
@@ -377,11 +453,11 @@ function LiveView({
   selectedId,
   onSelect,
   onStart,
-  onApprove,
   onDuty,
   onPublish,
   publishBusy,
   publishResult,
+  cardNews,
 }: {
   engine: Company;
   snap: Snapshot;
@@ -390,11 +466,11 @@ function LiveView({
   selectedId: string | null;
   onSelect: (agent: Agent) => void;
   onStart: () => void;
-  onApprove: () => void;
   onDuty: number;
   onPublish: () => void;
   publishBusy: boolean;
   publishResult: PublishResult | null;
+  cardNews: CardNewsState;
 }) {
   const progress = Math.round((snap.phaseIndex / (PHASES.length - 1)) * 100);
 
@@ -482,42 +558,46 @@ function LiveView({
 
           <section className="win rail-card" id="ceo-approval">
             <div className="win-bar">
-              <span>✅ ceo.approval</span>
+              <span>📇 card.news</span>
               <span className="window-controls">—　▢　✕</span>
             </div>
-            <div className={`win-body approval-body ${snap.approvalPending ? "pending" : ""}`}>
-              {snap.approvalPending && snap.pendingIdea ? (
+            <div className="win-body approval-body">
+              {cardNews.loading ? (
                 <>
                   <div className="approval-top">
-                    <span className="mini-badge yellow">TOP 1 제안 · {snap.pendingIdea.score}점</span>
-                    <span className="score blink">결재 대기</span>
+                    <span className="mini-badge yellow">제작 중</span>
                   </div>
-                  <h3>{snap.pendingIdea.title}</h3>
-                  <p>회의실에서 최아름·한도빈·김세리가 대표님을 기다리고 있어요.</p>
+                  <h3>{cardNews.item?.title}</h3>
+                  <p>콘텐츠 초안팀·디자인 제작팀이 카드뉴스 문안을 쓰고 있어요...</p>
+                </>
+              ) : cardNews.error ? (
+                <>
+                  <div className="approval-top">
+                    <span className="mini-badge yellow">생성 실패</span>
+                  </div>
+                  <p>⚠️ {cardNews.error}</p>
+                </>
+              ) : cardNews.result && cardNews.item ? (
+                <>
+                  <div className="approval-top">
+                    <span className="mini-badge mint">카드뉴스 완성</span>
+                  </div>
+                  <h3>{cardNews.result.cover}</h3>
+                  <p className="dash-note">원본: {cardNews.item.title}</p>
                   <div className="reason-list">
-                    {snap.pendingIdea.reasons.map((reason, i) => (
-                      <span key={reason}>{["①", "②", "③"][i] ?? `${i + 1}.`} {reason}</span>
+                    {cardNews.result.cards.map((card, i) => (
+                      <span key={card}>{i + 2}. {card}</span>
                     ))}
                   </div>
-                  <button className="btn approve-button" onClick={onApprove}>
-                    이 콘텐츠 승인하기
-                  </button>
+                  <p className="dash-note" style={{ marginTop: 8 }}>{cardNews.result.caption}</p>
                 </>
               ) : (
                 <>
                   <div className="approval-top">
-                    <span className="mini-badge mint">{snap.approved ? "오늘 결재 완료" : "결재 대기 없음"}</span>
+                    <span className="mini-badge mint">대기 중</span>
                   </div>
-                  <h3>
-                    {snap.approved
-                      ? (snap.pendingIdea?.title ?? "승인하신 안으로 제작 중이에요")
-                      : "아직 올라온 안건이 없어요"}
-                  </h3>
-                  <p>
-                    {snap.approved
-                      ? "대표 승인 이후 원고 → 제작 → 보관까지 이어집니다."
-                      : "업무를 시작하면 숏폼 기획팀이 오늘의 추천안을 회의실로 올려요."}
-                  </p>
+                  <h3>아직 고른 이슈가 없어요</h3>
+                  <p>아래 실시간 뉴스 피드에서 이슈를 골라 "카드뉴스로 만들기"를 눌러주세요.</p>
                 </>
               )}
             </div>
@@ -787,10 +867,10 @@ function DashboardView({
   setFilter,
   snap,
   onStart,
-  onApprove,
   onSelect,
   integrations,
   publishResult,
+  cardNews,
 }: {
   teams: TeamRow[];
   filteredTeams: TeamRow[];
@@ -798,10 +878,10 @@ function DashboardView({
   setFilter: (value: "전체" | DeptStatus) => void;
   snap: Snapshot;
   onStart: () => void;
-  onApprove: () => void;
   onSelect: (id: string) => void;
   integrations: IntegrationStatus | null;
   publishResult: PublishResult | null;
+  cardNews: CardNewsState;
 }) {
   // 서버가 알려준 실제 설정 상태로 표시한다 (연결됐다고 거짓 보고하지 않는다)
   const liveRows = integrations
@@ -981,29 +1061,42 @@ function DashboardView({
           <section className="two-col">
             <section className="win">
               <div className="win-bar">
-                <span>✅ ceo.approval</span>
+                <span>📇 card.news</span>
                 <span className="window-controls">—　▢　✕</span>
               </div>
               <div className="win-body approval-body">
-                <div className="approval-top">
-                  <span className="mini-badge yellow">TOP 1 제안</span>
-                  <span className="score">{snap.pendingIdea?.score ?? "-"}점</span>
-                </div>
-                <h3>{snap.pendingIdea?.title ?? (snap.approved ? "승인된 콘텐츠 제작 중" : "아직 올라온 안건이 없어요")}</h3>
-                <p>
-                  {snap.pendingIdea
-                    ? snap.pendingIdea.reasons.join(" · ")
-                    : snap.approved
-                      ? "대표 승인 이후 원고 → 제작 → 보관까지 이어집니다."
-                      : "업무를 시작하면 숏폼 기획팀이 오늘의 추천안을 회의실로 올려요."}
-                </p>
-                <button
-                  className={`btn approve-button ${snap.approved ? "approved" : ""}`}
-                  onClick={onApprove}
-                  disabled={!snap.approvalPending}
-                >
-                  {snap.approved ? "승인 완료 · 제작팀 전달됨" : snap.approvalPending ? "이 콘텐츠 승인하기" : "대기 중인 안건 없음"}
-                </button>
+                {cardNews.loading ? (
+                  <>
+                    <div className="approval-top">
+                      <span className="mini-badge yellow">제작 중</span>
+                    </div>
+                    <h3>{cardNews.item?.title}</h3>
+                    <p>콘텐츠 초안팀·디자인 제작팀이 카드뉴스 문안을 쓰고 있어요...</p>
+                  </>
+                ) : cardNews.error ? (
+                  <>
+                    <div className="approval-top">
+                      <span className="mini-badge yellow">생성 실패</span>
+                    </div>
+                    <p>⚠️ {cardNews.error}</p>
+                  </>
+                ) : cardNews.result && cardNews.item ? (
+                  <>
+                    <div className="approval-top">
+                      <span className="mini-badge mint">카드뉴스 완성</span>
+                    </div>
+                    <h3>{cardNews.result.cover}</h3>
+                    <p className="dash-note">원본: {cardNews.item.title}</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="approval-top">
+                      <span className="mini-badge mint">대기 중</span>
+                    </div>
+                    <h3>아직 고른 이슈가 없어요</h3>
+                    <p>실시간 뉴스 피드에서 이슈를 골라 카드뉴스로 만들어보세요.</p>
+                  </>
+                )}
               </div>
             </section>
 

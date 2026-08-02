@@ -38,15 +38,11 @@ export function buildReport(snap: Snapshot): DayReport {
     .filter(([, status]) => status === "연동 대기")
     .map(([dept]) => `${roomOf(dept).name} — ${BLOCK_NEED[dept] ?? "외부 연동"} 대기로 오늘 진행 불가`);
 
-  const decisions = snap.approved
-    ? ["TOP 1 콘텐츠 제작 승인 — 대본·제작까지 진행 완료"]
-    : snap.approvalPending
-      ? ["TOP 1 콘텐츠 승인 여부 (결재 대기 중)"]
-      : ["오늘 대표 결재 안건 없음"];
+  const decisions = ["대표가 뉴스 피드에서 이슈를 직접 골라 카드뉴스로 제작합니다."];
 
   const next = [
     ...risks.map((risk) => `${risk.split(" — ")[0]}: 연동 완료되면 즉시 재가동`),
-    snap.approved ? "제작된 콘텐츠 업로드 및 성과 기록" : "TOP 3 재검토",
+    "뉴스 피드에서 다음 이슈 선택 및 카드뉴스 제작",
   ];
 
   return {
