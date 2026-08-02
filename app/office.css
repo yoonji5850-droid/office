@@ -108,6 +108,8 @@
   overflow: hidden;
   cursor: grab;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   background:
     radial-gradient(circle at 30% 20%, rgba(255, 143, 192, .22), transparent 60%),
     radial-gradient(circle at 80% 80%, rgba(201, 184, 255, .18), transparent 55%),

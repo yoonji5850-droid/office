@@ -17,6 +17,8 @@ export type DayReport = {
   risks: string[];
   next: string[];
   log: { time: string; text: string }[];
+  newsPicks: string[];
+  ideaPick: string | null;
 };
 
 export type PublishEnv = {
@@ -132,6 +134,10 @@ async function sendDiscord(report: DayReport, env: PublishEnv, notionUrl?: strin
         value: `완료 ${report.counts.done} · 진행 ${report.counts.working} · 승인 대기 ${report.counts.approval} · 연동 대기 ${report.counts.blocked}`,
       },
       { name: "핵심 성과", value: joinLines(report.highlights).slice(0, 1000) },
+      ...(report.newsPicks.length > 0
+        ? [{ name: "오늘 찾은 이슈", value: joinLines(report.newsPicks).slice(0, 1000) }]
+        : []),
+      ...(report.ideaPick ? [{ name: "카드뉴스 아이디어", value: report.ideaPick.slice(0, 1000) }] : []),
       { name: "대표 결정사항", value: joinLines(report.decisions).slice(0, 1000) },
       { name: "문제·위험", value: joinLines(report.risks).slice(0, 1000) },
       { name: "다음 우선순위", value: joinLines(report.next).slice(0, 1000) },

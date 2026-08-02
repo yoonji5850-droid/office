@@ -14,6 +14,16 @@ export type DayReport = {
   risks: string[];
   next: string[];
   log: { time: string; text: string }[];
+  /** 오늘 데일리 이슈팀·연예계 모니터링팀이 찾은 실제 뉴스 (제목 — 출처) */
+  newsPicks: string[];
+  /** 대표가 고른 이슈로 만든 카드뉴스 아이디어 (있을 때만) */
+  ideaPick: string | null;
+};
+
+export type ReportExtras = {
+  entertainmentNews: { title: string; source: string }[];
+  dailyIssues: { title: string; source: string }[];
+  idea: { title: string; caption: string } | null;
 };
 
 export type PublishResult = {
@@ -27,7 +37,7 @@ export type IntegrationStatus = Record<
   { configured: boolean; label: string; need?: string }
 >;
 
-export function buildReport(snap: Snapshot): DayReport {
+export function buildReport(snap: Snapshot, extras?: ReportExtras): DayReport {
   const entries = Object.entries(snap.deptStatus);
 
   const highlights = entries
@@ -45,6 +55,11 @@ export function buildReport(snap: Snapshot): DayReport {
     "뉴스 피드에서 다음 이슈 선택 및 카드뉴스 제작",
   ];
 
+  const newsPicks = extras
+    ? [...extras.entertainmentNews, ...extras.dailyIssues].slice(0, 6).map((n) => `${n.title} — ${n.source}`)
+    : [];
+  const ideaPick = extras?.idea ? `${extras.idea.title} → ${extras.idea.caption}` : null;
+
   return {
     title: `${snap.clock} ${COMPANY.reportName} 일일 브리핑`,
     clock: snap.clock,
@@ -61,6 +76,8 @@ export function buildReport(snap: Snapshot): DayReport {
     risks,
     next,
     log: [...snap.log].reverse().map((entry) => ({ time: entry.time, text: `${entry.icon} ${entry.text}` })),
+    newsPicks,
+    ideaPick,
   };
 }
 

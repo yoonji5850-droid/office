@@ -9,6 +9,7 @@ import {
   publish,
   type IntegrationStatus,
   type PublishResult,
+  type ReportExtras,
 } from "./game/report";
 import { Company, PHASES, type Agent, type DeptStatus, type Snapshot } from "./game/sim";
 import { CEO, DEPT_BRIEF, DEPT_LEAD, STAFF } from "./game/staff";
@@ -151,11 +152,20 @@ export default function Home() {
     };
   }, []);
 
+  const reportExtras: ReportExtras = useMemo(
+    () => ({
+      entertainmentNews: entertainmentNews.items.map((n) => ({ title: n.title, source: n.source })),
+      dailyIssues: dailyIssues.items.map((n) => ({ title: n.title, source: n.source })),
+      idea: cardNews.result ? { title: cardNews.item?.title ?? "", caption: cardNews.result.caption } : null,
+    }),
+    [entertainmentNews.items, dailyIssues.items, cardNews],
+  );
+
   const sendReport = useCallback(
     async (auto: boolean) => {
       setPublishState((state) => ({ ...state, busy: true, error: "" }));
       try {
-        const result = await publish(buildReport(engine.snapshot()));
+        const result = await publish(buildReport(engine.snapshot(), reportExtras));
         setPublishState({ busy: false, result, error: "" });
 
         const parts: string[] = [];
@@ -175,7 +185,7 @@ export default function Home() {
         if (!auto) showToast("발행 실패 — 연동 설정을 확인해주세요");
       }
     },
-    [engine, showToast],
+    [engine, showToast, reportExtras],
   );
 
   // 하루가 끝나면 자동으로 한 번 발행한다
@@ -203,7 +213,7 @@ export default function Home() {
     engine.start();
     setBriefing(false);
     setView("live");
-    showToast("07:00 — AI 직원 32명이 출근합니다 ✨");
+    showToast("07:00 — AI 직원 28명이 출근합니다 ✨");
   };
 
   const makeCardNews = useCallback(
@@ -252,7 +262,7 @@ export default function Home() {
   const selected = selectedId ? engine.agentById.get(selectedId) ?? null : null;
   const todo = snap.approvalPending ? 1 : 0;
   const onDuty = engine.agents.filter((a) => a.status !== "출근 전").length;
-  const dayReport = useMemo(() => buildReport(snap), [snap]);
+  const dayReport = useMemo(() => buildReport(snap, reportExtras), [snap, reportExtras]);
 
   return (
     <main className="page-shell">
@@ -478,7 +488,7 @@ function LiveView({
     <>
       <header className="live-hero">
         <div>
-          <p className="eyebrow">LIVE OFFICE · 32 AI STAFF · REAL-TIME</p>
+          <p className="eyebrow">LIVE OFFICE · 28 AI STAFF · REAL-TIME</p>
           <h1>
             {COMPANY.titlePrefix} <em className="highlight">{COMPANY.titleAccent}</em>
           </h1>
@@ -928,7 +938,7 @@ function DashboardView({
             <h1>
               오늘 회사가 어떻게 움직이는지 <em className="highlight">한눈에</em> 보여드려요
             </h1>
-            <p>AI는 비서, 결정은 대표님. 12개 팀 32명의 조사부터 제작·저장·브리핑까지 한 흐름으로 관리해요.</p>
+            <p>AI는 비서, 결정은 대표님. 10개 팀 28명의 조사부터 제작·저장·브리핑까지 한 흐름으로 관리해요.</p>
           </div>
           <div className="hero-actions">
             <button className="btn btn-primary" onClick={onStart} disabled={snap.running}>
@@ -942,7 +952,7 @@ function DashboardView({
       <section className="summary-grid" aria-label="오늘 업무 요약">
         <article className="metric yellow">
           <span>AI 직원</span>
-          <strong>32</strong>
+          <strong>{STAFF.length}</strong>
           <small>STAFF</small>
         </article>
         <article className="metric mint">
@@ -1028,7 +1038,7 @@ function DashboardView({
               <div className="section-heading">
                 <div>
                   <p className="eyebrow">LIVE OFFICE</p>
-                  <h2>12개 부서 · 팀장 12명 근무 현황</h2>
+                  <h2>{teams.length}개 부서 · 팀장 {teams.length}명 근무 현황</h2>
                 </div>
                 <div className="filter-tabs" role="group" aria-label="팀 상태 필터">
                   {(["전체", "진행 중", "완료", "승인 대기", "연동 대기"] as const).map((item) => (
@@ -1179,7 +1189,7 @@ function DashboardView({
       </section>
 
       <p className="dash-note">
-        대표 {CEO.name}({CEO.callsign}) · AI 직원 {teams.length}개 부서 32명 · 이 화면은 라이브 오피스와 같은 상태를
+        대표 {CEO.name}({CEO.callsign}) · AI 직원 {teams.length}개 부서 28명 · 이 화면은 라이브 오피스와 같은 상태를
         공유해요.
       </p>
     </>

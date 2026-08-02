@@ -241,6 +241,9 @@ export default function OfficeWorld({ engine, snap, selectedId, follow, onSelect
   // 포인터 캡처는 쓰지 않는다 — 캡처하면 HUD 버튼·직원 클릭이 뷰포트에 먹혀버린다
   const onPointerDown = (e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest(".world-hud")) return;
+    // 브라우저 기본 드래그(텍스트 선택 → 자동 스크롤)를 막는다 — 안 막으면 지도를 드래그할 때
+    // 페이지 전체가 아래로 스크롤되면서 오피스가 화면 밖으로 밀려난다
+    e.preventDefault();
     dragRef.current = { on: true, px: e.clientX, py: e.clientY, moved: false };
   };
   const onPointerMove = (e: React.PointerEvent) => {
@@ -252,10 +255,16 @@ export default function OfficeWorld({ engine, snap, selectedId, follow, onSelect
     drag.px = e.clientX;
     drag.py = e.clientY;
     const scale = camRef.current.scale || 1;
+    const rect = viewportRef.current?.getBoundingClientRect();
+    // 뷰포트 절반보다 지도가 작으면 화면 밖(빈 공간)이 보이지 않게 중앙에 고정한다
+    const halfW = rect ? rect.width / 2 / scale : 0;
+    const halfH = rect ? rect.height / 2 / scale : 0;
+    const clampAxis = (value: number, half: number, total: number) =>
+      half * 2 >= total ? total / 2 : clamp(value, half, total - half);
     targetRef.current = {
       ...targetRef.current,
-      x: clamp(targetRef.current.x - dx / scale, 0, WORLD_W),
-      y: clamp(targetRef.current.y - dy / scale, 0, WORLD_H),
+      x: clampAxis(targetRef.current.x - dx / scale, halfW, WORLD_W),
+      y: clampAxis(targetRef.current.y - dy / scale, halfH, WORLD_H),
     };
   };
   const onPointerUp = () => {

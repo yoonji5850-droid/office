@@ -8,8 +8,8 @@
 //   1. 부서 id(research, brand, ...)는 절대 바꾸지 마세요. 시뮬레이션 엔진이
 //      이 id로 움직입니다. 바꾸면 캐릭터가 길을 잃어요.
 //      → 바꿔도 되는 건 name(부서 이름) · icon · short 입니다.
-//   2. 부서는 12개를 유지하세요. 사무실 배치가 4열 3행 = 12칸 고정입니다.
-//      안 쓰는 부서는 지우지 말고 이름만 바꿔서 쓰세요.
+//   2. 부서 개수를 바꾸면(추가/삭제) app/game/world.ts의 DEPT_COLS도 함께
+//      맞춰야 사무실 배치가 안 깨집니다 (지금은 5열 2행 = 10칸).
 //
 //  직원 수는 자유롭게 늘리고 줄여도 됩니다. 한 팀에 팀장(lead) 1명은 두세요.
 // ============================================================
@@ -27,7 +27,7 @@ export const COMPANY = {
   /** 브라우저 탭 제목 */
   pageTitle: "My AI Company — 나의 AI 사무실",
   /** 검색·공유될 때 뜨는 설명 */
-  description: "12개 AI 팀이 조사·기획·제작·보고까지 돌아가는 1인 크리에이터용 AI 오피스",
+  description: "10개 AI 팀이 조사·기획·제작·보고까지 돌아가는 1인 크리에이터용 AI 오피스",
   /** 창 하단 파일명 느낌의 라벨 */
   windowLabel: "my_ai_company.exe — 대표실",
   /** 일일 브리핑 제목에 들어갈 이름 */
@@ -51,7 +51,7 @@ export const CEO_PROFILE = {
 };
 
 /**
- * 부서 12개.
+ * 부서 10개.
  * id = 고정(엔진용) / name·short·icon = 자유롭게 변경
  * task = 오늘 하는 일 / report = 팀장 한줄보고
  */
@@ -111,22 +111,6 @@ export const DEPARTMENTS = [
     icon: "🖼️",
     task: "승인 원고를 카드뉴스·썸네일·SNS 시안과 이미지 프롬프트로 변환",
     report: "아티스트별 톤앤매너에 맞춰 시안을 뽑았어요.",
-  },
-  {
-    id: "partner",
-    name: "콘텐츠 일정팀",
-    short: "content.calendar",
-    icon: "🗓️",
-    task: "아티스트별 활동 일정에 맞춰 촬영·검수·공개 콘텐츠 캘린더 구성",
-    report: "이번 주 시급한 일정과 캘린더를 정리했어요.",
-  },
-  {
-    id: "finance",
-    name: "콘텐츠 아카이브팀",
-    short: "content.archive",
-    icon: "🗂️",
-    task: "아티스트별 콘텐츠·초안·반려 이력 관리, 유사도·중복 검사",
-    report: "중복 안 나게 재활용 자료를 챙겨둬요.",
   },
   {
     id: "review",
@@ -248,23 +232,7 @@ export const STAFF_LIST: StaffEntry[] = [
     colors: ["#274a44", "#fff3b0", "#b8f0dd"],
     thoughts: ["마지막 장 CTA 빠지면 반려예요.", "복제본에만 손댑니다."] },
 
-  // ⑧ 콘텐츠 일정팀
-  { dept: "partner", rank: "lead", name: "정파랑", role: "콘텐츠 일정 팀장", callsign: "정캘린",
-    colors: ["#563a32", "#b8f0dd", "#b8f0dd"],
-    thoughts: ["이번 주 컴백·방송 일정부터 캘린더에 반영해요.", "겹치는 일정은 우선순위로 정리합니다."] },
-  { dept: "partner", rank: "member", name: "구예성", role: "제작 일정 조율",
-    colors: ["#452d3f", "#c9b8ff", "#fff3b0"],
-    thoughts: ["마감일 역산해서 착수일부터 잡아요.", "기념일 콘텐츠는 3일 전엔 확정해야 해요."] },
-
-  // ⑨ 콘텐츠 아카이브팀
-  { dept: "finance", rank: "lead", name: "오재민", role: "콘텐츠 아카이브 팀장", callsign: "오아카",
-    colors: ["#313b56", "#fff3b0", "#fff3b0"],
-    thoughts: ["이 소재, 예전에 썼던 건지부터 확인해요.", "중복 안 나게 태그부터 정리합니다."] },
-  { dept: "finance", rank: "member", name: "심우진", role: "자료 정리·태깅",
-    colors: ["#4b3b2c", "#b8f0dd", "#c9b8ff"],
-    thoughts: ["폴더 기준 없이 저장 안 해요.", "재활용 가능한 소재는 따로 표시해둡니다."] },
-
-  // ⑩ 성과 학습팀
+  // ⑧ 성과 학습팀
   { dept: "review", rank: "lead", name: "강성아", role: "성과학습 팀장", callsign: "강성과",
     colors: ["#9c5c72", "#ff8fc0", "#ff8fc0"],
     thoughts: ["잘된 이유를 패턴으로 남겨야 해요.", "저장·댓글이 진짜 지표입니다."] },
@@ -275,7 +243,7 @@ export const STAFF_LIST: StaffEntry[] = [
     colors: ["#6b4a2f", "#c9b8ff", "#fff3b0"],
     thoughts: ["반복할 패턴 1개, 중단할 패턴 1개.", "다음 기획팀에 넘길 학습점 정리 중."] },
 
-  // ⑪ 자동화 운영팀
+  // ⑨ 자동화 운영팀
   { dept: "ops", rank: "lead", name: "안도현", role: "자동화 운영 팀장", callsign: "안오토",
     colors: ["#3b3b49", "#b8f0dd", "#b8f0dd"],
     thoughts: ["오전 스케줄 정상입니다.", "실패하면 재시도하고 로그 남겨요."] },
@@ -283,7 +251,7 @@ export const STAFF_LIST: StaffEntry[] = [
     colors: ["#573049", "#fff3b0", "#ff8fc0"],
     thoughts: ["연결 안 된 서비스를 성공으로 안 씁니다.", "연동 대기 중이에요."] },
 
-  // ⑫ 콘텐츠 비서실
+  // ⑩ 콘텐츠 비서실
   { dept: "secretary", rank: "lead", name: "김세리", role: "콘텐츠비서실장", callsign: "김비서",
     colors: ["#7a453c", "#c9b8ff", "#c9b8ff"],
     thoughts: ["대표가 결정할 것만 추립니다.", "중복 설명은 다 지워요."] },
@@ -294,12 +262,9 @@ export const STAFF_LIST: StaffEntry[] = [
 
 /**
  * 외부 연동을 아직 안 붙인 팀 → 화면에 "연동 대기"로 표시됩니다.
- * 연동을 다 붙였거나, 그냥 전부 초록불로 보고 싶으면 빈 배열 []로 두세요.
+ * 지금은 없음 — 새로 추가할 연동 대기 팀이 생기면 { id: "이유" } 형태로 채우세요.
  */
-export const PENDING_INTEGRATIONS: Record<string, string> = {
-  partner: "일정 캘린더 연동",
-  finance: "콘텐츠 자료 DB 연동",
-};
+export const PENDING_INTEGRATIONS: Record<string, string> = {};
 
 /**
  * 결과 보관함 링크 (Notion 등). 비워두면 화면에서 링크 버튼이 숨겨집니다.

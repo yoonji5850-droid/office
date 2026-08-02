@@ -2,7 +2,7 @@
 // 직원 상태머신 + A* 이동 + 회의 엔진 + 하루 시나리오 스크립트
 
 import { findPath } from "./pathfinding";
-import { CEO, DEPT_BRIEF, DEPT_LEAD, STAFF, type StaffSeed } from "./staff";
+import { BLOCK_NEED, CEO, DEPT_BRIEF, DEPT_LEAD, STAFF, type StaffSeed } from "./staff";
 import {
   CEO_REPORT_SPOT,
   CEO_SEAT,
@@ -142,13 +142,11 @@ const PHASES = [
   "업무 종료",
 ];
 
-const BLOCKED_DEPTS = new Set(["partner", "finance"]);
+/** 외부 연동을 아직 안 붙인 부서 id → "연동 대기"로 표시 (지금은 없음) */
+const BLOCKED_DEPTS = new Set<string>(Object.keys(BLOCK_NEED));
 
 /** 연동 대기 부서가 멈춰 있는 진짜 이유 */
-const BLOCK_REASON: Record<string, string> = {
-  partner: "캘린더 연동 전이라 일정 자동 동기화가 안 돼요. 대표님이 일정만 알려주시면 그날 안에 반영합니다.",
-  finance: "콘텐츠 자료 DB 연동 전이라 과거 자료를 자동으로 못 불러와요. 폴더만 공유해주시면 정리 시작합니다.",
-};
+const BLOCK_REASON: Record<string, string> = BLOCK_NEED;
 
 /** 지시창에서 부서를 찾을 때 쓰는 키워드 — 구체적인 것부터 검사한다 */
 const DEPT_KEYWORDS: [string, string[]][] = [
@@ -159,8 +157,6 @@ const DEPT_KEYWORDS: [string, string[]][] = [
   ["research", ["데일리 이슈", "이슈팀", "리서치", "뉴스", "김서연", "김이슈"]],
   ["reels", ["연예계", "모니터링", "송리원", "송연예"]],
   ["carousel", ["디자인 제작", "캐러셀", "카드뉴스", "canva", "칸바", "이가림", "이캐리"]],
-  ["partner", ["콘텐츠 일정", "캘린더", "정파랑", "정캘린"]],
-  ["finance", ["아카이브", "콘텐츠 자료", "오재민", "오아카"]],
   ["review", ["성과", "학습점", "지표", "강성아"]],
   ["ops", ["자동화", "운영팀", "스케줄", "안도현"]],
   ["secretary", ["비서", "김세리", "비서실"]],
@@ -361,7 +357,7 @@ export class Company {
   private *dayScript(): Generator<number | (() => boolean), void, void> {
     // ① 07:00 출근
     this.phaseIndex = 1;
-    this.pushLog("🚪", "07:00 자동 출근을 시작합니다. AI 직원 32명 입장!", "yellow");
+    this.pushLog("🚪", "07:00 자동 출근을 시작합니다. AI 직원 28명 입장!", "yellow");
     const workers = this.agents.filter((a) => a.rank !== "ceo");
     this.lock(workers);
     for (const agent of workers) {
@@ -394,7 +390,6 @@ export class Company {
 
     // ③ 연예계 모니터링 / 아티스트 분석
     this.phaseIndex = 3;
-    this.pushLog("🗓️", "콘텐츠 일정팀·콘텐츠 아카이브팀: 캘린더·자료 DB 연동 전이라 오늘은 대기합니다.", "lav");
     yield* this.runDept("reels", "구글 뉴스 실시간 연예계 이슈 수집", 6, "오늘 참고할 콘텐츠 5개를 실제 뉴스에서 골랐어요.");
 
     yield* this.runDept("brand", "아티스트 정체성·매력·활동 일정 분석", 6.5, "아티스트 기준이랑 팬 반응 포인트까지 정리했어요.");
