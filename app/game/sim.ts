@@ -123,6 +123,7 @@ export type Snapshot = {
   focusMode: boolean;
   spotlight: string | null;
   busyWithOrder: boolean;
+  pendingIdea: { title: string; score: number; reasons: string[] } | null;
 };
 
 const PHASES = [
@@ -187,6 +188,7 @@ export class Company {
   approved = false;
   briefingReady = false;
   meetingTitle: string | null = null;
+  pendingIdea: { title: string; score: number; reasons: string[] } | null = null;
   onBriefing: (() => void) | null = null;
   /** 대표 지시창 */
   chat: ChatEntry[] = [];
@@ -223,6 +225,7 @@ export class Company {
     this.approved = false;
     this.briefingReady = false;
     this.meetingTitle = null;
+    this.pendingIdea = null;
     this.main = { gen: null, wait: 0, until: null };
     this.side = { gen: null, wait: 0, until: null };
     this.seatBook.clear();
@@ -427,6 +430,11 @@ export class Company {
     this.phaseIndex = 6;
     const areum = this.agentById.get("strategy1-lead")!;
     this.stand(areum);
+    this.pendingIdea = {
+      title: "팬이 궁금해한 질문에 30초 안에 답하기",
+      score: 94,
+      reasons: ["팬 참여 유도가 확실한 소재", "촬영 난이도가 낮아 바로 제작 가능", "화제성 높은 이슈와 연결됨"],
+    };
     this.say(areum, "오늘의 추천안 정리했어요. 1위는 94점!", 3);
     this.pushLog("💡", "숏폼 기획팀: TOP 1 확정 (94점 · 팬이 궁금해한 질문에 30초 안에 답하기)", "pink");
     yield 1.8;
@@ -460,7 +468,7 @@ export class Company {
     );
     yield this.allFree([...approvers, ceo]);
 
-    this.say(approvers[0], "TOP 1은 '팬이 궁금해한 질문에 30초 안에 답하기' 94점이에요.", 3.4);
+    this.say(approvers[0], `TOP 1은 '${this.pendingIdea?.title}' ${this.pendingIdea?.score}점이에요.`, 3.4);
     yield 2.4;
     this.say(approvers[2], "대표님, 오늘 결정하실 건 이거 하나예요.", 3.2);
     yield 2.2;
@@ -1233,6 +1241,7 @@ export class Company {
       phaseIndex: this.phaseIndex,
       approvalPending: this.approvalPending,
       approved: this.approved,
+      pendingIdea: this.pendingIdea,
       briefingReady: this.briefingReady,
       deptStatus: { ...this.deptStatus },
       counts,

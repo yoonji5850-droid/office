@@ -395,18 +395,18 @@ function LiveView({
               <span className="window-controls">—　▢　✕</span>
             </div>
             <div className={`win-body approval-body ${snap.approvalPending ? "pending" : ""}`}>
-              {snap.approvalPending ? (
+              {snap.approvalPending && snap.pendingIdea ? (
                 <>
                   <div className="approval-top">
-                    <span className="mini-badge yellow">TOP 1 제안 · 92점</span>
+                    <span className="mini-badge yellow">TOP 1 제안 · {snap.pendingIdea.score}점</span>
                     <span className="score blink">결재 대기</span>
                   </div>
-                  <h3>AI 회사가 매일 아침 나 대신 출근한다면?</h3>
+                  <h3>{snap.pendingIdea.title}</h3>
                   <p>회의실에서 최아름·한도빈·김세리가 대표님을 기다리고 있어요.</p>
                   <div className="reason-list">
-                    <span>① 실제 구축 과정</span>
-                    <span>② 저장할 운영 구조</span>
-                    <span>③ 날것의 시행착오</span>
+                    {snap.pendingIdea.reasons.map((reason, i) => (
+                      <span key={reason}>{["①", "②", "③"][i] ?? `${i + 1}.`} {reason}</span>
+                    ))}
                   </div>
                   <button className="btn approve-button" onClick={onApprove}>
                     이 콘텐츠 승인하기
@@ -417,11 +417,15 @@ function LiveView({
                   <div className="approval-top">
                     <span className="mini-badge mint">{snap.approved ? "오늘 결재 완료" : "결재 대기 없음"}</span>
                   </div>
-                  <h3>{snap.approved ? "승인하신 안으로 제작 중이에요" : "아직 올라온 안건이 없어요"}</h3>
+                  <h3>
+                    {snap.approved
+                      ? (snap.pendingIdea?.title ?? "승인하신 안으로 제작 중이에요")
+                      : "아직 올라온 안건이 없어요"}
+                  </h3>
                   <p>
                     {snap.approved
                       ? "대표 승인 이후 원고 → 제작 → 보관까지 이어집니다."
-                      : "업무를 시작하면 콘텐츠 전략팀이 TOP 3를 회의실로 올려요."}
+                      : "업무를 시작하면 숏폼 기획팀이 오늘의 추천안을 회의실로 올려요."}
                   </p>
                 </>
               )}
@@ -892,14 +896,16 @@ function DashboardView({
               <div className="win-body approval-body">
                 <div className="approval-top">
                   <span className="mini-badge yellow">TOP 1 제안</span>
-                  <span className="score">92점</span>
+                  <span className="score">{snap.pendingIdea?.score ?? "-"}점</span>
                 </div>
-                <h3>
-                  AI 회사가 매일 아침
-                  <br />
-                  나 대신 출근한다면?
-                </h3>
-                <p>지금 만들고 있는 시스템 자체를 날것의 성장기로 공개하는 크리에이터 아이덴티티 콘텐츠예요.</p>
+                <h3>{snap.pendingIdea?.title ?? (snap.approved ? "승인된 콘텐츠 제작 중" : "아직 올라온 안건이 없어요")}</h3>
+                <p>
+                  {snap.pendingIdea
+                    ? snap.pendingIdea.reasons.join(" · ")
+                    : snap.approved
+                      ? "대표 승인 이후 원고 → 제작 → 보관까지 이어집니다."
+                      : "업무를 시작하면 숏폼 기획팀이 오늘의 추천안을 회의실로 올려요."}
+                </p>
                 <button
                   className={`btn approve-button ${snap.approved ? "approved" : ""}`}
                   onClick={onApprove}
