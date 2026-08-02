@@ -142,11 +142,10 @@ const PHASES = [
   "업무 종료",
 ];
 
-const BLOCKED_DEPTS = new Set(["reels", "partner", "finance"]);
+const BLOCKED_DEPTS = new Set(["partner", "finance"]);
 
 /** 연동 대기 부서가 멈춰 있는 진짜 이유 */
 const BLOCK_REASON: Record<string, string> = {
-  reels: "연예 매체·SNS API가 아직 연동 전이라 실시간 이슈를 못 긁어와요. 없는 이슈를 지어내지는 않습니다. 연결되면 바로 모니터링 돌려요.",
   partner: "캘린더 연동 전이라 일정 자동 동기화가 안 돼요. 대표님이 일정만 알려주시면 그날 안에 반영합니다.",
   finance: "콘텐츠 자료 DB 연동 전이라 과거 자료를 자동으로 못 불러와요. 폴더만 공유해주시면 정리 시작합니다.",
 };
@@ -392,16 +391,10 @@ export class Company {
     this.phaseIndex = 2;
     yield* this.runDept("research", "온라인 신규 이슈·밈·숏폼 포맷 수집", 6.5, "오늘 신규 이슈 10개 중 활용 3개를 추렸어요.");
 
-    // ③ 연예계 모니터링 — 연동 대기라 라운지로 / 아티스트 분석
+    // ③ 연예계 모니터링 / 아티스트 분석
     this.phaseIndex = 3;
-    const songLead = this.agentById.get("reels-lead")!;
-    this.stand(songLead);
-    this.say(songLead, "매체·SNS API 미연동이라 실시간 이슈는 못 긁어와요.", 3);
-    this.pushLog("🎤", "연예계 모니터링팀: 매체·SNS API 미연동 → 자동 수집 없이 대기", "lav");
-    this.goto(songLead, rand(LOUNGE_ROOM.loiter), "휴식");
-    this.enqueue(songLead, { k: "wait", dur: 4 }, { k: "fn", fn: () => this.say(songLead, "연결되면 바로 모니터링 시작할게요.", 2.4) });
-    this.sitAtDesk(songLead);
     this.pushLog("🗓️", "콘텐츠 일정팀·콘텐츠 아카이브팀: 캘린더·자료 DB 연동 전이라 오늘은 대기합니다.", "lav");
+    yield* this.runDept("reels", "구글 뉴스 실시간 연예계 이슈 수집", 6, "오늘 참고할 콘텐츠 5개를 실제 뉴스에서 골랐어요.");
 
     yield* this.runDept("brand", "아티스트 정체성·매력·활동 일정 분석", 6.5, "아티스트 기준이랑 팬 반응 포인트까지 정리했어요.");
 

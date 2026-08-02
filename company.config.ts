@@ -297,7 +297,6 @@ export const STAFF_LIST: StaffEntry[] = [
  * 연동을 다 붙였거나, 그냥 전부 초록불로 보고 싶으면 빈 배열 []로 두세요.
  */
 export const PENDING_INTEGRATIONS: Record<string, string> = {
-  reels: "연예 매체·SNS API 연동",
   partner: "일정 캘린더 연동",
   finance: "콘텐츠 자료 DB 연동",
 };

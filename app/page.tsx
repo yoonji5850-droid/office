@@ -17,6 +17,8 @@ import { COMPANY, STORAGE_LINK } from "../company.config";
 
 type View = "live" | "dashboard";
 
+type NewsItem = { title: string; link: string; source: string; publishedAt: string };
+
 const statusClass: Record<DeptStatus, string> = {
   "완료": "done",
   "진행 중": "working",
@@ -67,6 +69,11 @@ export default function Home() {
     result: null,
     error: "",
   });
+  const [entertainmentNews, setEntertainmentNews] = useState<{ items: NewsItem[]; error: string }>({
+    items: [],
+    error: "",
+  });
+  const [dailyIssues, setDailyIssues] = useState<{ items: NewsItem[]; error: string }>({ items: [], error: "" });
   const publishedRef = useRef(false);
 
   useEffect(() => {
@@ -105,6 +112,39 @@ export default function Home() {
     fetchIntegrations()
       .then(setIntegrations)
       .catch(() => setIntegrations(null));
+  }, []);
+
+  // 연예계 모니터링팀·데일리 이슈팀 — 구글 뉴스 실시간 피드 (API 키 불필요)
+  useEffect(() => {
+    let cancelled = false;
+    const loadFeeds = async () => {
+      try {
+        const res = await fetch("/api/news/entertainment");
+        const data = (await res.json()) as NewsItem[] & { error?: string };
+        if (!res.ok || "error" in data) throw new Error((data as { error?: string }).error ?? "조회 실패");
+        if (!cancelled) setEntertainmentNews({ items: data, error: "" });
+      } catch (error) {
+        if (!cancelled) {
+          setEntertainmentNews((state) => ({ ...state, error: error instanceof Error ? error.message : String(error) }));
+        }
+      }
+      try {
+        const res = await fetch("/api/news/daily-issues");
+        const data = (await res.json()) as NewsItem[] & { error?: string };
+        if (!res.ok || "error" in data) throw new Error((data as { error?: string }).error ?? "조회 실패");
+        if (!cancelled) setDailyIssues({ items: data, error: "" });
+      } catch (error) {
+        if (!cancelled) {
+          setDailyIssues((state) => ({ ...state, error: error instanceof Error ? error.message : String(error) }));
+        }
+      }
+    };
+    void loadFeeds();
+    const interval = window.setInterval(() => void loadFeeds(), 10 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
   }, []);
 
   const sendReport = useCallback(
@@ -249,6 +289,57 @@ export default function Home() {
             publishResult={publishState.result}
           />
         )}
+
+        <section className="win storage" style={{ marginTop: 20 }}>
+          <div className="win-bar">
+            <span>🌐 live_news_feed</span>
+            <span className="window-controls">—　▢　✕</span>
+          </div>
+          <div className="win-body">
+            <div className="two-col">
+              <div>
+                <p className="eyebrow">🎤 연예계 모니터링팀 · REAL-TIME</p>
+                <h2 style={{ marginBottom: 10 }}>연예계 이슈</h2>
+                {entertainmentNews.error ? (
+                  <p className="dash-note">⚠️ {entertainmentNews.error}</p>
+                ) : entertainmentNews.items.length === 0 ? (
+                  <p className="dash-note">불러오는 중...</p>
+                ) : (
+                  <ul style={{ lineHeight: 1.7 }}>
+                    {entertainmentNews.items.map((item) => (
+                      <li key={item.link}>
+                        <a href={item.link} target="_blank" rel="noreferrer">
+                          {item.title}
+                        </a>
+                        {item.source ? <span className="dash-note"> · {item.source}</span> : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <p className="eyebrow">🌐 데일리 이슈팀 · REAL-TIME</p>
+                <h2 style={{ marginBottom: 10 }}>오늘의 화제 이슈</h2>
+                {dailyIssues.error ? (
+                  <p className="dash-note">⚠️ {dailyIssues.error}</p>
+                ) : dailyIssues.items.length === 0 ? (
+                  <p className="dash-note">불러오는 중...</p>
+                ) : (
+                  <ul style={{ lineHeight: 1.7 }}>
+                    {dailyIssues.items.map((item) => (
+                      <li key={item.link}>
+                        <a href={item.link} target="_blank" rel="noreferrer">
+                          {item.title}
+                        </a>
+                        {item.source ? <span className="dash-note"> · {item.source}</span> : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
 
         <footer>
           이 툴은 갓생맘 🎀이 만들었어요
