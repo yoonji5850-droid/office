@@ -1178,48 +1178,14 @@ export class Company {
     if (agent.idleFor > 0) return;
     agent.idleFor = 7 + Math.random() * 14;
 
-    const roll = Math.random();
-    const blocked = BLOCKED_DEPTS.has(agent.deptId) && this.deptStatus[agent.deptId] === "연동 대기";
-
     if (agent.status === "출근 전") return;
 
-    if (roll < 0.5 || this.focusMode) {
-      // 집중 모드에서는 자리에서 생각만 한다 — 커피·잡담 금지
-      this.say(agent, rand(agent.thoughts), 3.4, "think");
-      return;
-    }
-    if (roll < 0.68 || blocked) {
-      // 라운지 커피 타임
-      this.stand(agent);
-      this.enqueue(
-        agent,
-        { k: "status", s: "휴식" },
-        { k: "walk", to: rand(LOUNGE_ROOM.loiter) },
-        { k: "say", text: rand(["잠깐 커피 ☕", "머리 좀 식히고요", "당 충전 필요해요"]), dur: 2.6, kind: "talk" },
-        { k: "wait", dur: 3 + Math.random() * 4 },
-      );
-      this.sitAtDesk(agent);
-      return;
-    }
-    if (roll < 0.82) {
-      // 옆자리 잡담
-      const mate = this.agents.find(
-        (a) => a.deptId === agent.deptId && a.id !== agent.id && !this.busy(a) && a.status !== "출근 전",
-      );
-      if (mate) {
-        this.say(agent, rand(["이거 어떻게 생각해요?", "잠깐만요, 이거 봐봐요", "저장할 만한가요 이거?"]), 3);
-        this.say(mate, rand(["오, 괜찮은데요?", "각도를 살짝 틀면 좋겠어요", "근거만 붙이면 돼요"]), 3);
-        agent.anim = "talk";
-        mate.anim = "talk";
-        this.enqueue(agent, { k: "wait", dur: 2.6 }, { k: "anim", a: "sit" });
-        this.enqueue(mate, { k: "wait", dur: 2.6 }, { k: "anim", a: "sit" });
-      }
-      return;
-    }
-    // 자리 정리
+    // 출근한 직원은 자리를 벗어나지 않는다 — 가끔 혼잣말(생각 말풍선)만 띄운다.
     if (Math.abs(agent.x - agent.home.x) > 0.1 || Math.abs(agent.y - agent.home.y) > 0.1) {
       this.sitAtDesk(agent);
+      return;
     }
+    this.say(agent, rand(agent.thoughts), 3.4, "think");
   }
 
   // ── 스냅샷 ──────────────────────────────────────────────
