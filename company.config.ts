@@ -36,7 +36,7 @@ export const COMPANY = {
 
 /** 대표(나) — 사무실 대표실에 앉아 있는 캐릭터 */
 export const CEO_PROFILE = {
-  name: "김대표",
+  name: "이대표",
   callsign: "대표님",
   role: "대표 · 최종 의사결정",
   hair: "#42283a",
