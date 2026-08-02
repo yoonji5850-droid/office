@@ -1,7 +1,7 @@
 // 오피스 월드 맵
 // 타일 그리드 기반. 0 = 걸을 수 있음, 1 = 막힘(벽·가구)
 
-import { DEPARTMENTS } from "../../company.config";
+import { DEPARTMENTS, STAFF_LIST } from "../../company.config";
 
 export const TILE = 18;
 export const COLS = 74;
@@ -47,11 +47,27 @@ const DEPT_LAYOUT: { id: string; name: string; short: string; icon: string }[] =
   (d) => ({ id: d.id, name: d.name, short: d.short, icon: d.icon }),
 );
 
+/** 부서별 실제 직원 수만큼 자리를 만든다 — 인원이 방 정원보다 많으면 자리가 없어서 출근을 못 한다 */
+const STAFF_COUNT_BY_DEPT: Record<string, number> = {};
+for (const staff of STAFF_LIST) {
+  STAFF_COUNT_BY_DEPT[staff.dept] = (STAFF_COUNT_BY_DEPT[staff.dept] ?? 0) + 1;
+}
+
+/** 방 안쪽(x+2 ~ x+12)에 자리를 균등 배치 */
+function deskOffsets(count: number): number[] {
+  if (count <= 3) return [3, 7, 11].slice(0, Math.max(count, 1));
+  const start = 2;
+  const end = 12;
+  const step = (end - start) / (count - 1);
+  return Array.from({ length: count }, (_, i) => Math.round(start + step * i));
+}
+
 function deptRoom(index: number): Room {
   const meta = DEPT_LAYOUT[index];
   const x = COL_X[index % 4];
   const y = ROW_Y[Math.floor(index / 4)];
-  const desks: Desk[] = [3, 7, 11].map((dx) => ({
+  const seatCount = Math.max(3, STAFF_COUNT_BY_DEPT[meta.id] ?? 3);
+  const desks: Desk[] = deskOffsets(seatCount).map((dx) => ({
     deskX: x + dx - 1,
     deskY: y + 5,
     seat: { x: x + dx, y: y + 6 },
