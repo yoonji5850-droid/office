@@ -24,6 +24,7 @@ export type ReportExtras = {
   entertainmentNews: { title: string; source: string }[];
   dailyIssues: { title: string; source: string }[];
   idea: { title: string; caption: string } | null;
+  ideaError: string | null;
 };
 
 export type PublishResult = {
@@ -48,7 +49,11 @@ export function buildReport(snap: Snapshot, extras?: ReportExtras): DayReport {
     .filter(([, status]) => status === "연동 대기")
     .map(([dept]) => `${roomOf(dept).name} — ${BLOCK_NEED[dept] ?? "외부 연동"} 대기로 오늘 진행 불가`);
 
-  const decisions = ["대표가 뉴스 피드에서 이슈를 직접 골라 카드뉴스로 제작합니다."];
+  const decisions = extras?.idea
+    ? [`오늘 실시간 이슈 중 "${extras.idea.title}"을(를) 선정해 카드뉴스 문안까지 자동 제작 완료했습니다.`]
+    : extras?.ideaError
+      ? [`카드뉴스 자동 제작 실패 — ${extras.ideaError}`]
+      : ["오늘은 카드뉴스로 만들 만한 실시간 이슈를 아직 찾지 못했어요."];
 
   const next = [
     ...risks.map((risk) => `${risk.split(" — ")[0]}: 연동 완료되면 즉시 재가동`),

@@ -22,6 +22,8 @@ function decodeEntities(text: string): string {
     .replace(/&#39;/g, "'");
 }
 
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
 async function fetchGoogleNewsRss(query: string, limit: number): Promise<NewsItem[]> {
   const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ko&gl=KR&ceid=KR:ko`;
   const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
@@ -30,12 +32,18 @@ async function fetchGoogleNewsRss(query: string, limit: number): Promise<NewsIte
 
   const items: NewsItem[] = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+  const now = Date.now();
   let match: RegExpExecArray | null;
-  while ((match = itemRegex.exec(xml)) && items.length < limit) {
+  let scanned = 0;
+  while ((match = itemRegex.exec(xml)) && items.length < limit && scanned < limit * 6) {
+    scanned += 1;
     const block = match[1];
     const title = decodeEntities(extractTag(block, "title"));
     const link = extractTag(block, "link");
     const pubDate = extractTag(block, "pubDate");
+    const publishedAt = Date.parse(pubDate);
+    // 최근 일주일 안에 나온 기사만 쓴다 — 옛날 기사가 섞이지 않게
+    if (Number.isNaN(publishedAt) || now - publishedAt > WEEK_MS) continue;
     const sourceMatch = block.match(/<source[^>]*>([^<]*)<\/source>/);
     const source = sourceMatch ? decodeEntities(sourceMatch[1]) : "";
     if (title && link) items.push({ title, link, source, publishedAt: pubDate });

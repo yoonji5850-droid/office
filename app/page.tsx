@@ -157,6 +157,7 @@ export default function Home() {
       entertainmentNews: entertainmentNews.items.map((n) => ({ title: n.title, source: n.source })),
       dailyIssues: dailyIssues.items.map((n) => ({ title: n.title, source: n.source })),
       idea: cardNews.result ? { title: cardNews.item?.title ?? "", caption: cardNews.result.caption } : null,
+      ideaError: cardNews.result ? null : cardNews.error || null,
     }),
     [entertainmentNews.items, dailyIssues.items, cardNews],
   );
@@ -234,11 +235,28 @@ export default function Home() {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         setCardNews({ item, loading: false, error: message, result: null });
+        engine.pushLog("⚠️", `콘텐츠 초안팀: 카드뉴스 자동 제작 실패 — ${message}`, "lav");
         showToast("카드뉴스 생성 실패 — ANTHROPIC_API_KEY를 확인해주세요");
       }
     },
     [engine, showToast],
   );
+
+  // 숏폼 기획팀이 아이디어 정리를 끝내는 시점(phaseIndex 6)에 대표 대신 오늘의
+  // 실시간 이슈 1위를 자동으로 골라 카드뉴스까지 자동 제작한다 — 대표가 직접 골라도 되고 안 골라도 팀이 실제로 결과물을 만든다
+  const autoIdeaRef = useRef(false);
+  useEffect(() => {
+    if (!snap.running) {
+      autoIdeaRef.current = false;
+      return;
+    }
+    if (snap.phaseIndex < 6 || autoIdeaRef.current || cardNews.item) return;
+    const candidate = entertainmentNews.items[0] ?? dailyIssues.items[0];
+    if (!candidate) return;
+    autoIdeaRef.current = true;
+    engine.pushLog("🔎", `숏폼 기획팀: 오늘 실시간 이슈 1위 "${candidate.title}"로 카드뉴스 자동 제작을 시작합니다.`, "pink");
+    void makeCardNews(candidate);
+  }, [snap.running, snap.phaseIndex, cardNews.item, entertainmentNews.items, dailyIssues.items, engine, makeCardNews]);
 
   const teams = useMemo(
     () =>
@@ -596,7 +614,7 @@ function LiveView({
                   <p className="dash-note">원본: {cardNews.item.title}</p>
                   <div className="reason-list">
                     {cardNews.result.cards.map((card, i) => (
-                      <span key={card}>{i + 2}. {card}</span>
+                      <span key={card}>{i + 1}. {card}</span>
                     ))}
                   </div>
                   <p className="dash-note" style={{ marginTop: 8 }}>{cardNews.result.caption}</p>
