@@ -17,21 +17,6 @@ import { COMPANY, STORAGE_LINK } from "../company.config";
 
 type View = "live" | "dashboard";
 
-type YoutubeVideo = {
-  videoId: string;
-  title: string;
-  description: string;
-  publishedAt: string;
-  thumbnail: string;
-  url: string;
-};
-
-type YoutubeAnalysis = {
-  analysis: string;
-  secondaryIdeas: string[];
-  reactionSummary: string;
-};
-
 const statusClass: Record<DeptStatus, string> = {
   "완료": "done",
   "진행 중": "working",
@@ -83,60 +68,6 @@ export default function Home() {
     error: "",
   });
   const publishedRef = useRef(false);
-  const [youtube, setYoutube] = useState<{
-    video: YoutubeVideo | null;
-    analysis: YoutubeAnalysis | null;
-    loading: boolean;
-    error: string;
-  }>({ video: null, analysis: null, loading: false, error: "" });
-
-  // 연예계 모니터링팀: mumw 유튜브(@MAKEUMINEWORKS) 새 영상을 실시간으로 확인하고,
-  // 새 영상이면 아티스트 분석팀이 자동으로 분석·2차 아이디어·반응 요약을 생성한다.
-  useEffect(() => {
-    let cancelled = false;
-
-    const checkLatest = async () => {
-      setYoutube((state) => ({ ...state, loading: true, error: "" }));
-      try {
-        const res = await fetch("/api/youtube-latest");
-        const data = (await res.json()) as YoutubeVideo & { error?: string };
-        if (!res.ok || data.error) throw new Error(data.error ?? "조회 실패");
-        if (cancelled) return;
-        setYoutube((state) => ({ ...state, video: data, loading: false }));
-
-        const lastSeenId = window.localStorage.getItem("mumw_last_video_id");
-        if (lastSeenId === data.videoId) return;
-        window.localStorage.setItem("mumw_last_video_id", data.videoId);
-        engine.pushLog("🎤", `연예계 모니터링팀: mumw 새 영상 감지 — "${data.title}"`, "pink");
-
-        const analysisRes = await fetch("/api/youtube-analysis", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        const analysisData = (await analysisRes.json()) as YoutubeAnalysis & { error?: string };
-        if (!analysisRes.ok || analysisData.error) throw new Error(analysisData.error ?? "분석 실패");
-        if (cancelled) return;
-        setYoutube((state) => ({ ...state, analysis: analysisData }));
-        engine.pushLog("🧬", "아티스트 분석팀: 새 영상 분석·2차 콘텐츠 아이디어를 정리했어요.", "mint");
-      } catch (error) {
-        if (!cancelled) {
-          setYoutube((state) => ({
-            ...state,
-            loading: false,
-            error: error instanceof Error ? error.message : String(error),
-          }));
-        }
-      }
-    };
-
-    void checkLatest();
-    const interval = window.setInterval(() => void checkLatest(), 10 * 60 * 1000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, [engine]);
 
   useEffect(() => {
     let raf = 0;
@@ -318,58 +249,6 @@ export default function Home() {
             publishResult={publishState.result}
           />
         )}
-
-        <section className="win storage" style={{ marginTop: 20 }}>
-          <div className="win-bar">
-            <span>🎤 mumw_youtube_watch</span>
-            <span className="window-controls">—　▢　✕</span>
-          </div>
-          <div className="win-body">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">연예계 모니터링팀 · REAL-TIME</p>
-                <h2>@MAKEUMINEWORKS 최신 영상</h2>
-              </div>
-            </div>
-            {youtube.error ? (
-              <p className="dash-note">
-                ⚠️ {youtube.error} — <code>.dev.vars</code>의 <code>YOUTUBE_API_KEY</code>를 확인해주세요.
-              </p>
-            ) : youtube.video ? (
-              <div className="result-table">
-                <div className="result-row">
-                  <b>
-                    <a href={youtube.video.url} target="_blank" rel="noreferrer">
-                      {youtube.video.title}
-                    </a>
-                  </b>
-                  <span>{new Date(youtube.video.publishedAt).toLocaleDateString("ko-KR")}</span>
-                  <span className="status-pill done">최신</span>
-                </div>
-              </div>
-            ) : (
-              <p className="dash-note">
-                {youtube.loading
-                  ? "확인 중..."
-                  : "YOUTUBE_API_KEY를 .dev.vars에 채우면 실시간 확인이 시작돼요."}
-              </p>
-            )}
-            {youtube.analysis ? (
-              <div className="dash-note" style={{ marginTop: 12, lineHeight: 1.6 }}>
-                <b>🧬 아티스트 분석팀 분석</b>
-                <p>{youtube.analysis.analysis}</p>
-                <b>💡 2차 콘텐츠 아이디어</b>
-                <ul>
-                  {youtube.analysis.secondaryIdeas.map((idea) => (
-                    <li key={idea}>{idea}</li>
-                  ))}
-                </ul>
-                <b>👥 예상 반응</b>
-                <p>{youtube.analysis.reactionSummary}</p>
-              </div>
-            ) : null}
-          </div>
-        </section>
 
         <footer>
           이 툴은 갓생맘 🎀이 만들었어요

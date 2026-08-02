@@ -2,9 +2,8 @@
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
 import { integrationStatus, publishReport, type DayReport, type PublishEnv } from "./report";
-import { analyzeVideo, getLatestVideo, type LatestVideo, type YoutubeEnv } from "./youtube";
 
-interface Env extends PublishEnv, YoutubeEnv {
+interface Env extends PublishEnv {
   ASSETS: Fetcher;
   DB: D1Database;
   IMAGES: {
@@ -45,28 +44,6 @@ const worker = {
         return Response.json(result);
       } catch (error) {
         return Response.json({ error: String(error) }, { status: 400 });
-      }
-    }
-
-    // 연예계 모니터링팀: mumw 유튜브(@MAKEUMINEWORKS) 최신 영상 조회
-    if (url.pathname === "/api/youtube-latest") {
-      try {
-        const video = await getLatestVideo(env);
-        return Response.json(video);
-      } catch (error) {
-        return Response.json({ error: error instanceof Error ? error.message : String(error) }, { status: 400 });
-      }
-    }
-
-    // 아티스트 분석팀: 새 영상 분석·2차 콘텐츠 아이디어·반응 요약 생성
-    if (url.pathname === "/api/youtube-analysis") {
-      if (request.method !== "POST") return new Response("POST only", { status: 405 });
-      try {
-        const video = (await request.json()) as LatestVideo;
-        const analysis = await analyzeVideo(video, env);
-        return Response.json(analysis);
-      } catch (error) {
-        return Response.json({ error: error instanceof Error ? error.message : String(error) }, { status: 400 });
       }
     }
 

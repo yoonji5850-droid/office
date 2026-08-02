@@ -17,12 +17,3 @@ NOTION_BRIEFING_DB=
 # ── Discord ────────────────────────────────────────────
 # 보고를 받을 채널 → 채널 편집 → 연동 → 웹후크 → 새 웹후크 → URL 복사
 DISCORD_WEBHOOK_URL=
-
-# ── 유튜브 (연예계 모니터링팀 — @MAKEUMINEWORKS 실시간 연동) ──
-# https://console.cloud.google.com/apis/credentials 에서 API 키 발급
-# (YouTube Data API v3를 먼저 "사용 설정"해야 합니다)
-YOUTUBE_API_KEY=
-
-# ── Anthropic (아티스트 분석팀 — 새 영상 자동 분석용) ──────────
-# https://console.anthropic.com/settings/keys 에서 API 키 발급
-ANTHROPIC_API_KEY=
